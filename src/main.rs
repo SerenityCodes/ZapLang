@@ -1,5 +1,5 @@
-use std::{io::Write};
 use lalrpop_util::lalrpop_mod;
+use std::io::Write;
 
 pub mod ast;
 
@@ -17,24 +17,24 @@ fn parse_zap_repl() -> Result<Program, Box<dyn std::error::Error>> {
     std::io::stdin()
         .read_line(&mut buffer)
         .expect("No line found");
-    
+
     let input = buffer.trim();
-    
+
     // Use the generated parser
     let parser = zap::ProgramParser::new();
     match parser.parse(input) {
         Ok(program) => Ok(program),
         Err(e) => Err(Box::new(std::io::Error::new(
-            std::io::ErrorKind::InvalidData, 
-            format!("Parse error: {:?}", e)
-        )))
+            std::io::ErrorKind::InvalidData,
+            format!("Parse error: {:?}", e),
+        ))),
     }
 }
 
 fn main() {
     println!("ZapLang Parser REPL");
     println!("Enter ZapLang code to parse (Ctrl+C to exit)");
-    
+
     loop {
         match parse_zap_repl() {
             Ok(program) => {
