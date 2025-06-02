@@ -1,7 +1,15 @@
 [package]
-name = "ZapLang"
+name = "zap_lang"
 version = "0.1.0"
 edition = "2024"
+
+[lib]
+name = "zap_lang"
+path = "src/lib.rs"
+
+[[bin]]
+name = "zap_lang"
+path = "src/main.rs"
 
 [build-dependencies] 
 lalrpop = "0.22.1"
