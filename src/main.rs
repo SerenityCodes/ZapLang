@@ -1,4 +1,12 @@
 use std::{io::Write, str::FromStr};
+use lalrpop_util::lalrpop_mod;
+
+pub mod ast;
+
+// Include the generated parser
+lalrpop_mod!(pub zap);
+
+use ast::*;
 
 struct VM {
     registers: [u64],
@@ -73,14 +81,37 @@ fn parse_instruction_repl() -> Result<Instruction, ()> {
     })
 }
 
+fn parse_zap_repl() -> Result<Program, Box<dyn std::error::Error>> {
+    print!("> ");
+    std::io::stdout()
+        .flush()
+        .expect("Using for testing. Remove if this fails");
+    let mut buffer = String::new();
+    std::io::stdin()
+        .read_line(&mut buffer)
+        .expect("No line found");
+    
+    let input = buffer.trim();
+    
+    // Use the generated parser
+    let parser = zap::ProgramParser::new();
+    match parser.parse(input) {
+        Ok(program) => Ok(program),
+        Err(e) => Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::InvalidData, 
+            format!("Parse error: {:?}", e)
+        )))
+    }
+}
+
 fn main() {
     loop {
-        match parse_instruction_repl() {
-            Ok(i) => {
-                println!("Instruction Parsed: {:?}", i);
+        match parse_zap_repl() {
+            Ok(program) => {
+                println!("Program Parsed: {:#?}", program);
             }
-            err => {
-                println!("Parsing of the instruction failed. Error: {:?}", err);
+            Err(err) => {
+                println!("Parsing failed. Error: {:?}", err);
             }
         }
     }
