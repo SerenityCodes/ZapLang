@@ -1,5 +1,5 @@
-use std::fs;
 use lalrpop_util::lalrpop_mod;
+use std::fs;
 
 pub mod ast;
 lalrpop_mod!(pub zap);
@@ -14,10 +14,10 @@ mod tests {
         let parser = zap::ProgramParser::new();
         let result = parser.parse("func main() {}");
         assert!(result.is_ok());
-        
+
         let program = result.unwrap();
         assert_eq!(program.statements.len(), 1);
-        
+
         if let Statement::FunctionDecl(func) = &program.statements[0] {
             assert_eq!(func.name, "main");
             assert!(func.parameters.is_empty());
@@ -27,12 +27,12 @@ mod tests {
         }
     }
 
-    #[test] 
+    #[test]
     fn test_function_with_parameters() {
         let parser = zap::ProgramParser::new();
         let result = parser.parse("func add(x: int, y: int) -> int {}");
         assert!(result.is_ok());
-        
+
         let program = result.unwrap();
         if let Statement::FunctionDecl(func) = &program.statements[0] {
             assert_eq!(func.name, "add");
@@ -41,7 +41,7 @@ mod tests {
             assert_eq!(func.parameters[0].param_type.name, "int");
             assert_eq!(func.parameters[1].name, "y");
             assert_eq!(func.parameters[1].param_type.name, "int");
-            
+
             assert!(func.return_type.is_some());
             assert_eq!(func.return_type.as_ref().unwrap().name, "int");
         } else {
@@ -54,7 +54,7 @@ mod tests {
         let parser = zap::ProgramParser::new();
         let result = parser.parse("let x: int = 42;");
         assert!(result.is_ok());
-        
+
         let program = result.unwrap();
         if let Statement::VariableDecl(var) = &program.statements[0] {
             assert_eq!(var.name, "x");
@@ -69,7 +69,7 @@ mod tests {
         let parser = zap::ProgramParser::new();
         let result = parser.parse("struct Point { x: float; y: float; }");
         assert!(result.is_ok());
-        
+
         let program = result.unwrap();
         if let Statement::StructDecl(struct_decl) = &program.statements[0] {
             assert_eq!(struct_decl.name, "Point");
@@ -88,7 +88,7 @@ mod tests {
         let parser = zap::ProgramParser::new();
         let result = parser.parse("if (true) { return 1; }");
         assert!(result.is_ok());
-        
+
         let program = result.unwrap();
         if let Statement::IfStmt(if_stmt) = &program.statements[0] {
             assert!(if_stmt.else_block.is_none());
@@ -137,17 +137,17 @@ module Math {
         let parser = zap::ProgramParser::new();
         let result = parser.parse(test_code);
         assert!(result.is_ok());
-        
+
         let program = result.unwrap();
         assert_eq!(program.statements.len(), 5); // func, struct, component, let, module
-        
+
         // Check that we got all the expected top-level statements
         let mut found_function = false;
         let mut found_struct = false;
         let mut found_component = false;
         let mut found_variable = false;
         let mut found_module = false;
-        
+
         for statement in &program.statements {
             match statement {
                 Statement::FunctionDecl(f) if f.name == "fibonacci" => found_function = true,
@@ -158,7 +158,7 @@ module Math {
                 _ => {}
             }
         }
-        
+
         assert!(found_function, "Should find fibonacci function");
         assert!(found_struct, "Should find Point struct");
         assert!(found_component, "Should find Transform component");
@@ -173,8 +173,8 @@ pub fn parse_file(path: &str) -> Result<Program, Box<dyn std::error::Error>> {
     match parser.parse(&content) {
         Ok(program) => Ok(program),
         Err(e) => Err(Box::new(std::io::Error::new(
-            std::io::ErrorKind::InvalidData, 
-            format!("Parse error: {:?}", e)
-        )))
+            std::io::ErrorKind::InvalidData,
+            format!("Parse error: {:?}", e),
+        ))),
     }
 }
