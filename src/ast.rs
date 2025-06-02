@@ -39,6 +39,7 @@ pub struct Parameter {
     pub name: String,
     pub param_type: Type,
     pub is_ref: bool,
+    pub is_readonly: bool,
 }
 
 #[derive(Debug, Clone)]

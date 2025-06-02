@@ -72,8 +72,8 @@ ParameterList: Vec<Parameter> = {
 };
 
 Parameter: Parameter = {
-    <name:Identifier> ":" <param_type:Type> => Parameter { name, param_type, is_ref: false },
-    <name:Identifier> ":" "ref" <param_type:Type> => Parameter { name, param_type, is_ref: true },
+    <name:Identifier> ":" <param_type:Type> => Parameter { name, param_type, is_ref: false, is_readonly: false },
+    <name:Identifier> ":" "ref" <param_type:Type> => Parameter { name, param_type, is_ref: true, is_readonly: false },
 };
 
 Type: Type = {

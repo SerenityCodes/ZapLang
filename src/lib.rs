@@ -40,9 +40,11 @@ mod tests {
             assert_eq!(func.parameters[0].name, "x");
             assert_eq!(func.parameters[0].param_type.name, "int");
             assert!(!func.parameters[0].is_ref, "x should not be ref");
+            assert!(!func.parameters[0].is_readonly, "x should not be readonly");
             assert_eq!(func.parameters[1].name, "y");
             assert_eq!(func.parameters[1].param_type.name, "int");
             assert!(!func.parameters[1].is_ref, "y should not be ref");
+            assert!(!func.parameters[1].is_readonly, "y should not be readonly");
 
             assert!(func.return_type.is_some());
             assert_eq!(func.return_type.as_ref().unwrap().name, "int");
@@ -241,9 +243,17 @@ module Math {
                         assert_eq!(f.parameters[0].name, "entity");
                         assert_eq!(f.parameters[0].param_type.name, "u32");
                         assert!(!f.parameters[0].is_ref, "entity should not be ref");
+                        assert!(
+                            !f.parameters[0].is_readonly,
+                            "entity should not be readonly"
+                        );
                         assert_eq!(f.parameters[1].name, "health");
                         assert_eq!(f.parameters[1].param_type.name, "Health");
                         assert!(f.parameters[1].is_ref, "health should be ref");
+                        assert!(
+                            !f.parameters[1].is_readonly,
+                            "health should not be readonly"
+                        );
                     }
                     "init_system" => {
                         found_init_system_func = true;
