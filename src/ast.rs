@@ -38,6 +38,7 @@ pub struct AttributeBlock {
 pub struct Parameter {
     pub name: String,
     pub param_type: Type,
+    pub is_ref: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -138,6 +139,7 @@ pub enum Expression {
     Factor(Box<Expression>, FactorOp, Box<Expression>),
     Unary(UnaryOp, Box<Expression>),
     Call(Box<Expression>, Vec<Expression>),
+    FieldAccess(Box<Expression>, String),
     Primary(Primary),
 }
 
@@ -182,4 +184,11 @@ pub enum Primary {
     String(String),
     Identifier(String),
     Parenthesized(Box<Expression>),
+    StructLiteral(Vec<FieldInitializer>),
+}
+
+#[derive(Debug, Clone)]
+pub struct FieldInitializer {
+    pub name: String,
+    pub value: Expression,
 }
