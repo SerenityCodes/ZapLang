@@ -40,7 +40,13 @@ FunctionDecl: FunctionDecl = {
 };
 
 AttributeBlock: AttributeBlock = {
+    "@" <attr:AttributeWithParams> => AttributeBlock { attributes: vec![attr] },
     "@" "[" <attrs:AttributeList> "]" => AttributeBlock { attributes: attrs }
+};
+
+AttributeWithParams: String = {
+    <name:Identifier> "(" <param:Identifier> ")" => format!("{}({})", name, param),
+    <name:Identifier> => name,
 };
 
 AttributeList: Vec<String> = {
@@ -66,7 +72,8 @@ ParameterList: Vec<Parameter> = {
 };
 
 Parameter: Parameter = {
-    <name:Identifier> ":" <param_type:Type> => Parameter { name, param_type }
+    <name:Identifier> ":" <param_type:Type> => Parameter { name, param_type, is_ref: false, is_readonly: false },
+    <name:Identifier> ":" "ref" <param_type:Type> => Parameter { name, param_type, is_ref: true, is_readonly: false },
 };
 
 Type: Type = {
@@ -267,6 +274,13 @@ Call: Expression = {
     <expr:Call> "(" <args:ArgumentList?> ")" => {
         Expression::Call(Box::new(expr), args.unwrap_or_default())
     },
+    FieldAccess,
+};
+
+FieldAccess: Expression = {
+    <expr:FieldAccess> "." <field:Identifier> => {
+        Expression::FieldAccess(Box::new(expr), field)
+    },
     Primary,
 };
 
@@ -290,6 +304,20 @@ PrimaryValue: Primary = {
     <s:StringLiteral> => Primary::String(s),
     <id:Identifier> => Primary::Identifier(id),
     "(" <e:Expression> ")" => Primary::Parenthesized(Box::new(e)),
+    "{" <fields:FieldInitializerList> "}" => Primary::StructLiteral(fields),
+};
+
+FieldInitializerList: Vec<FieldInitializer> = {
+    <field:FieldInitializer> => vec![field],
+    <list:FieldInitializerList> "," <field:FieldInitializer> => {
+        let mut list = list;
+        list.push(field);
+        list
+    },
+};
+
+FieldInitializer: FieldInitializer = {
+    <name:Identifier> ":" <value:Expression> => FieldInitializer { name, value }
 };
 
 // ------------------------
