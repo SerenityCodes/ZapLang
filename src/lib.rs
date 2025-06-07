@@ -319,3 +319,27 @@ pub fn parse_file(path: &str) -> Result<Program, Box<dyn std::error::Error>> {
         ))),
     }
 }
+
+#[cfg(test)]
+mod integration_tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_file_with_example() {
+        let result = parse_file("examples/game_systems.zap");
+        assert!(result.is_ok(), "Should successfully parse the example file");
+
+        let program = result.unwrap();
+        assert_eq!(
+            program.statements.len(),
+            8,
+            "Example should have 8 statements"
+        );
+    }
+
+    #[test]
+    fn test_parse_file_nonexistent() {
+        let result = parse_file("nonexistent_file.zap");
+        assert!(result.is_err(), "Should fail to parse non-existent file");
+    }
+}
