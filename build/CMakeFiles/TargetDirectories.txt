@@ -1,0 +1,3 @@
+/home/uber-driver/Projects/ZapLang/build/CMakeFiles/zapc.dir
+/home/uber-driver/Projects/ZapLang/build/CMakeFiles/edit_cache.dir
+/home/uber-driver/Projects/ZapLang/build/CMakeFiles/rebuild_cache.dir
