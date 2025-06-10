@@ -31,7 +31,7 @@ This is a C++-based programming language parser for ZapLang, a games programming
 ## Key Guidelines
 1. **Testing Requirements**: Every piece of functionality needs associated tests. Major pieces of functionality should have unit tests. Follow the existing testing patterns in the codebase.
 2. **Naming Conventions**: 
-   - Variables and functions: `camelCase` or `snake_case` (follow existing patterns)
+   - Variables and functions: `snake_case`
    - Classes and structs: `PascalCase` 
    - Follow existing patterns in the codebase for consistency
 3. **Code Formatting**:
