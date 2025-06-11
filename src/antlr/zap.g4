@@ -57,8 +57,11 @@ statement
 
 functionDecl: attributeBlock? FUNC IDENTIFIER '(' parameterList? ')' returnType block;
 
-attributeBlock: '@' '[' attribute (',' attribute)* ']';
-attribute: IDENTIFIER;
+attributeBlock: '@' '[' attributeList ']';
+attributeList: attribute (',' attribute)*;
+attribute: IDENTIFIER ('(' attributeArgs? ')')?;
+attributeArgs: attributeArg (',' attributeArg)*;
+attributeArg: IDENTIFIER | STRING | INT;
 
 returnType: ARROW type;
 

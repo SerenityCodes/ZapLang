@@ -9,6 +9,8 @@ file(GLOB_RECURSE ANTLR_SOURCES
 file(GLOB_RECURSE GENERATED_SOURCES
     src/antlr/*.cpp
     src/antlr/*.h
+    src/ast/*.h
+    src/ast/*.cpp
 )
 
 file(GLOB_RECURSE ANTLR_HEADERS
@@ -17,6 +19,8 @@ file(GLOB_RECURSE ANTLR_HEADERS
 
 add_executable(zapc
   src/main.cpp
+  src/ASTVisitor.h
+  src/ASTVisitor.cpp
   ${GENERATED_SOURCES}
   ${ANTLR_SOURCES}
   ${ANTLR_HEADERS}  # not necessary but helps IDEs
