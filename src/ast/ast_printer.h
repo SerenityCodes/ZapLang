@@ -5,12 +5,12 @@
 namespace ast {
 
 class ZapPrettyPrinter {
-public:
+   public:
     explicit ZapPrettyPrinter(std::ostream& out);
 
     void print(const ZapProgram& program);
 
-private:
+   private:
     std::ostream& out;
     int indent_level = 0;
 
@@ -26,6 +26,7 @@ private:
     void print(const ZapAssignStatement& assign);
     void print(const ZapIfStatement& ifstmt);
     void print(const ZapForStatement& forstmt);
+    void print(const ZapWhileStatement& whilestmt);
     void print(const ZapReturnStatement& retstmt);
     void print(const ZapDeferStatement& deferstmt);
     void print(const ZapType& type);
@@ -35,4 +36,3 @@ private:
 };
 
 }  // namespace ast
-
