@@ -188,13 +188,96 @@ void ZapPrettyPrinter::print(const ZapStatement& stmt) {
                       : ZapExpression{});
             out << ";\n";
             break;
-        case ZapStatementKind::If:
+        case ZapStatementKind::If: {
             ZapIfStatement if_statement = std::get<ZapIfStatement>(stmt.value);
             out << "if (";
             print(*if_statement.condition);
             out << ") {\n";
+            indent();
+            for (const auto& then_stmt : if_statement.then_block) {
+                print(then_stmt);
+            }
+            indent_level--;
+            printIndent();
+            out << "}";
+            if (!if_statement.else_block.empty()) {
+                out << " else {\n";
+                indent();
+                for (const auto& else_stmt : if_statement.else_block) {
+                    print(else_stmt);
+                }
+                indent_level--;
+                printIndent();
+                out << "}";
+            }
+            out << "\n";
             break;
-
+        }
+        case ZapStatementKind::For: {
+            const auto& for_stmt = std::get<ZapForStatement>(stmt.value);
+            out << "for (";
+            out << "let " << for_stmt.start.name << ": ";
+            print(for_stmt.start.type);
+            out << " = ";
+            print(*for_stmt.start.value);
+            out << "; ";
+            print(*for_stmt.condition);
+            out << "; ";
+            print(*for_stmt.step);
+            out << ") {\n";
+            indent();
+            for (const auto& body_stmt : for_stmt.body) {
+                print(body_stmt);
+            }
+            indent_level--;
+            printIndent();
+            out << "}\n";
+            break;
+        }
+        case ZapStatementKind::While: {
+            const auto& while_stmt = std::get<ZapWhileStatement>(stmt.value);
+            out << "while (";
+            print(*while_stmt.condition);
+            out << ") {\n";
+            indent();
+            for (const auto& body_stmt : while_stmt.body) {
+                print(body_stmt);
+            }
+            indent_level--;
+            printIndent();
+            out << "}\n";
+            break;
+        }
+        case ZapStatementKind::Defer: {
+            const auto& defer_stmt = std::get<ZapDeferStatement>(stmt.value);
+            out << "defer ";
+            if (defer_stmt.is_body) {
+                out << "{\n";
+                indent();
+                for (const auto& body_stmt : defer_stmt.body) {
+                    print(body_stmt);
+                }
+                indent_level--;
+                printIndent();
+                out << "}\n";
+            } else {
+                print(*defer_stmt.expr);
+                out << ";\n";
+            }
+            break;
+        }
+        case ZapStatementKind::Block: {
+            const auto& block_stmt = std::get<ZapBlockStatement>(stmt.value);
+            out << "{\n";
+            indent();
+            for (const auto& body_stmt : block_stmt.statements) {
+                print(body_stmt);
+            }
+            indent_level--;
+            printIndent();
+            out << "}\n";
+            break;
+        }
         default:
             out << "// [unimplemented statement]\n";
     }
@@ -213,6 +296,89 @@ void ZapPrettyPrinter::print(const ZapAssignStatement& assign) {
     out << " = ";
     print(*assign.value);
     out << ";\n";
+}
+
+void ZapPrettyPrinter::print(const ZapIfStatement& ifstmt) {
+    out << "if (";
+    print(*ifstmt.condition);
+    out << ") {\n";
+    indent();
+    for (const auto& stmt : ifstmt.then_block) {
+        print(stmt);
+    }
+    indent_level--;
+    printIndent();
+    out << "}";
+    if (!ifstmt.else_block.empty()) {
+        out << " else {\n";
+        indent();
+        for (const auto& stmt : ifstmt.else_block) {
+            print(stmt);
+        }
+        indent_level--;
+        printIndent();
+        out << "}";
+    }
+    out << "\n";
+}
+
+void ZapPrettyPrinter::print(const ZapForStatement& forstmt) {
+    out << "for (";
+    out << "let " << forstmt.start.name << ": ";
+    print(forstmt.start.type);
+    out << " = ";
+    print(*forstmt.start.value);
+    out << "; ";
+    print(*forstmt.condition);
+    out << "; ";
+    print(*forstmt.step);
+    out << ") {\n";
+    indent();
+    for (const auto& stmt : forstmt.body) {
+        print(stmt);
+    }
+    indent_level--;
+    printIndent();
+    out << "}\n";
+}
+
+void ZapPrettyPrinter::print(const ZapWhileStatement& whilestmt) {
+    out << "while (";
+    print(*whilestmt.condition);
+    out << ") {\n";
+    indent();
+    for (const auto& stmt : whilestmt.body) {
+        print(stmt);
+    }
+    indent_level--;
+    printIndent();
+    out << "}\n";
+}
+
+void ZapPrettyPrinter::print(const ZapReturnStatement& retstmt) {
+    out << "return";
+    if (retstmt.value) {
+        out << " ";
+        print(*retstmt.value);
+    }
+    out << ";\n";
+}
+
+void ZapPrettyPrinter::print(const ZapDeferStatement& deferstmt) {
+    out << "defer ";
+    if (deferstmt.is_body) {
+        out << "{\n";
+        indent();
+        for (const auto& stmt : deferstmt.body) {
+            print(stmt);
+        }
+        indent_level--;
+        printIndent();
+        out << "}\n";
+    } else {
+        print(*deferstmt.expr);
+        out << ";\n";
+    }
 }
 
 void ZapPrettyPrinter::print(const ZapExpression& expr) {
@@ -245,21 +411,47 @@ void ZapPrettyPrinter::print(const ZapExpression& expr) {
         case ZapExpressionKind::Call: {
             const auto& call = std::get<ZapCallExpression>(expr.value);
             out << call.function << "(";
-            if (call.args.size() == 1) {
-                std::shared_ptr arg = call.args[0];
-                if (arg != nullptr) {
-                    print(*arg);
-                }
-            } else {
-                for (size_t i = 0; i < call.args.size(); ++i) {
-                    std::shared_ptr arg = call.args[i];
-                    if (arg != nullptr) {
-                        print(*arg);
+            for (size_t i = 0; i < call.args.size(); ++i) {
+                if (call.args[i] != nullptr) {
+                    print(*call.args[i]);
+                    if (i + 1 < call.args.size()) {
                         out << ", ";
                     }
                 }
             }
             out << ")";
+            break;
+        }
+        case ZapExpressionKind::AOTBlock: {
+            const auto& aot = std::get<ZapAOTBlock>(expr.value);
+            out << "@AOT {\n";
+            indent();
+            for (const auto& stmt : aot.statements) {
+                print(stmt);
+            }
+            indent_level--;
+            printIndent();
+            out << "}";
+            break;
+        }
+        case ZapExpressionKind::StructInit: {
+            const auto& init = std::get<ZapStructInitExpression>(expr.value);
+            out << init.type_name << " { ";
+            for (size_t i = 0; i < init.fields.size(); ++i) {
+                const auto& field = init.fields[i];
+                out << field.field << ": ";
+                print(*field.value);
+                if (i + 1 < init.fields.size()) {
+                    out << ", ";
+                }
+            }
+            out << " }";
+            break;
+        }
+        case ZapExpressionKind::StructAccess: {
+            const auto& access =
+                std::get<ZapStructAccessExpression>(expr.value);
+            out << access.type << "." << access.field;
             break;
         }
         default:
