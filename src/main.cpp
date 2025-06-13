@@ -32,10 +32,15 @@ int main(int argc, const char *argv[]) {
     antlr4::CommonTokenStream tokens(&lexer);
 
     zapParser parser(&tokens);
+    zapParser::ProgramContext* program_ctx = parser.program();
+    if (parser.getNumberOfSyntaxErrors() > 0) {
+        return 1;
+    }
     
     ASTVisitor visitor;
-    ast::ZapProgram program = std::any_cast<ast::ZapProgram>(visitor.visit(parser.program()));
-    ast::ASTPrinter::print(program);
+    ast::ZapProgram program = std::any_cast<ast::ZapProgram>(visitor.visit(program_ctx));
+    ast::ZapPrettyPrinter printer{std::cout};
+    printer.print(program);
 
     return 0;
 }

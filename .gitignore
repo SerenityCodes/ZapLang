@@ -3,3 +3,6 @@ build/
 out/
 compile_commands.json
 .cache/
+
+# Core dump files
+vgcore.*

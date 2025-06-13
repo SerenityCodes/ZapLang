@@ -10,13 +10,12 @@
  */
 class ASTVisitor : public zapVisitor {
    public:
-    virtual std::any visitProgram(zapParser::ProgramContext *ctx) override {
-        return visitChildren(ctx);
-    }
+    virtual std::any visitProgram(zapParser::ProgramContext *ctx) override;
 
-    virtual std::any visitStatement(zapParser::StatementContext *ctx) override {
-        return visitChildren(ctx);
-    }
+    virtual std::any visitStatement(zapParser::StatementContext *ctx) override;
+
+    virtual std::any visitDeclaration(
+        zapParser::DeclarationContext *ctx) override;
 
     virtual std::any visitFunctionDecl(
         zapParser::FunctionDeclContext *ctx) override;
@@ -26,11 +25,14 @@ class ASTVisitor : public zapVisitor {
         return visitChildren(ctx);
     }
 
-    virtual std::any visitAttributeList(zapParser::AttributeListContext* ctx) override;
+    virtual std::any visitAttributeList(
+        zapParser::AttributeListContext *ctx) override;
 
-    virtual std::any visitAttributeArgs(zapParser::AttributeArgsContext* ctx) override;
-    
-    virtual std::any visitAttributeArg(zapParser::AttributeArgContext* ctx) override;
+    virtual std::any visitAttributeArgs(
+        zapParser::AttributeArgsContext *ctx) override;
+
+    virtual std::any visitAttributeArg(
+        zapParser::AttributeArgContext *ctx) override;
 
     virtual std::any visitAttribute(zapParser::AttributeContext *ctx) override;
 

@@ -17,12 +17,26 @@ FUNC: 'func'; STRUCT: 'struct';
 COMPONENT: 'component';
 READONLY: 'readonly';
 MODULE: 'module';
-SYSTEM: 'system';
 AOT: 'aot';
 REF: 'ref';
 VOID: 'void';
 ARROW: '->';
 USE: 'use';
+
+OR: '||';
+AND: '&&';
+EQ: '==';
+NEQ: '!=';
+ADD: '+';
+SUB: '-';
+MUL: '*';
+DIV: '/';
+MOD: '%';
+LT: '<';
+LTE: '<=';
+GT: '>';
+GTE: '>=';
+NOT: '!';
 
 INT: [0-9]+;
 FLOAT: [0-9]+ '.' [0-9]+;
@@ -37,14 +51,17 @@ BLOCK_COMMENT: '/*' .*? '*/' -> skip;
 // Parser Rules
 // ------------------------
 
-program: statement* EOF;
+program: declaration* EOF;
 
-statement
+declaration
     : functionDecl
     | structDecl
     | componentDecl
     | moduleDecl
-    | variableDecl ';'
+    ;
+
+statement
+    : variableDecl ';'
     | expressionStmt
     | block
     | ifStmt
@@ -66,7 +83,7 @@ attributeArg: IDENTIFIER | STRING | INT;
 returnType: ARROW type;
 
 parameterList: parameter (',' parameter)*;
-parameter: IDENTIFIER ':' type;
+parameter: IDENTIFIER ':' REF? type;
 
 type: (IDENTIFIER | VOID) ('<' type '>' )? ('[' ']')?;
 
@@ -100,36 +117,36 @@ assignment
     ;
 
 logicOr
-    : logicAnd ( '||' logicAnd )*
+    : logicAnd ( OR logicAnd )*
     ;
 
 logicAnd
-    : equality ( '&&' equality )*
+    : equality ( AND equality )*
     ;
 
 equality
-    : comparison ( ('==' | '!=') comparison )*
+    : comparison ( op+=(EQ | NEQ) comparison )*
     ;
 
 comparison
-    : term ( ('<' | '<=' | '>' | '>=') term )*
+    : term ( op+=(LT | LTE | GT | GTE) term )*
     ;
 
 term
-    : factor ( ('+' | '-') factor )*
+    : factor ( op+=(ADD | SUB) factor )*
     ;
 
 factor
-    : unary ( ('*' | '/' | '%') unary )*
+    : unary ( op+=(MUL | DIV | MOD) unary )*
     ;
 
 unary
-    : ('!' | '-') unary
+    : op=(NOT | SUB) unary
     | call
     ;
 
 call
-    : primary ( '(' argumentList? ')' )*
+    : primary ('.' IDENTIFIER)* ( '(' argumentList? ')' )*
     ;
 
 argumentList: expression (',' expression)*;

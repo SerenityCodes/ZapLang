@@ -45,9 +45,30 @@ enum class ZapExpressionKind {
     Literal,
     Identifier,
     Binary,
+    Unary,
     Call,
     AOTBlock,
-    StructInit
+    StructInit,
+    StructAccess
+};
+
+enum BinaryOp {
+    ASSIGNMENT,
+    OR,
+    AND,
+    EQUAL,
+    NOT_EQUAL,
+    LESS_THAN,
+    LESS_THAN_OR_EQUAL,
+    GREATER_THAN,
+    GREATER_THAN_OR_EQUAL,
+    ADD,
+    SUBTRACT,
+    MULTIPLY,
+    DIVIDE,
+    MOD,
+    NOT,
+    NEGATIVE
 };
 
 struct ZapLiteral {
@@ -57,7 +78,12 @@ struct ZapLiteral {
 struct ZapBinaryExpression {
     std::shared_ptr<struct ZapExpression> left;
     std::shared_ptr<struct ZapExpression> right;
-    std::string op;
+    BinaryOp op;
+};
+
+struct ZapUnaryExpression {
+    BinaryOp op;
+    std::shared_ptr<struct ZapExpression> unary;
 };
 
 struct ZapCallExpression {
@@ -67,12 +93,16 @@ struct ZapCallExpression {
 
 struct ZapAOTBlock {
     std::vector<struct ZapStatement> statements;
-    std::shared_ptr<struct ZapExpression> yield_expr;
 };
 
 struct ZapStructFieldInit {
     ZapIdentifier field;
     std::shared_ptr<struct ZapExpression> value;
+};
+
+struct ZapStructAccessExpression {
+    ZapIdentifier type;
+    ZapIdentifier field;
 };
 
 struct ZapStructInitExpression {
@@ -83,12 +113,23 @@ struct ZapStructInitExpression {
 struct ZapExpression {
     ZapExpressionKind kind;
     std::variant<ZapLiteral, ZapIdentifier, ZapBinaryExpression,
-                 ZapCallExpression, ZapAOTBlock, ZapStructInitExpression>
+                 ZapUnaryExpression, ZapCallExpression, ZapAOTBlock,
+                 ZapStructInitExpression, ZapStructAccessExpression>
         value;
 };
 
 // === Statements ===
-enum class ZapStatementKind { Let, Assign, Expression, If, For, Return, Defer };
+enum class ZapStatementKind {
+    Let,
+    Assign,
+    Expression,
+    If,
+    For,
+    While,
+    Return,
+    Defer,
+    Block
+};
 
 struct ZapLetStatement {
     ZapIdentifier name;
@@ -103,16 +144,20 @@ struct ZapAssignStatement {
 
 struct ZapIfStatement {
     std::shared_ptr<ZapExpression> condition;
-    std::vector<struct ZapStatement> then_block;
-    std::vector<struct ZapStatement> else_block;
+    std::vector<ZapStatement> then_block;
+    std::vector<ZapStatement> else_block;
 };
 
 struct ZapForStatement {
-    ZapIdentifier var;
-    std::shared_ptr<ZapExpression> start;
+    ZapLetStatement start;
     std::shared_ptr<ZapExpression> condition;
     std::shared_ptr<ZapExpression> step;
-    std::vector<struct ZapStatement> body;
+    std::vector<ZapStatement> body;
+};
+
+struct ZapWhileStatement {
+    std::shared_ptr<ZapExpression> condition;
+    std::vector<ZapStatement> body;
 };
 
 struct ZapReturnStatement {
@@ -120,14 +165,21 @@ struct ZapReturnStatement {
 };
 
 struct ZapDeferStatement {
+    bool is_body;
     std::shared_ptr<ZapExpression> expr;
+    std::vector<ZapStatement> body;
+};
+
+struct ZapBlockStatement {
+    std::vector<ZapStatement> statements;
 };
 
 struct ZapStatement {
     ZapStatementKind kind;
     std::variant<ZapLetStatement, ZapAssignStatement,
                  std::shared_ptr<ZapExpression>, ZapIfStatement,
-                 ZapForStatement, ZapReturnStatement, ZapDeferStatement>
+                 ZapForStatement, ZapWhileStatement, ZapReturnStatement,
+                 ZapDeferStatement, ZapBlockStatement>
         value;
 };
 
@@ -139,7 +191,7 @@ struct ZapParam {
 
 struct ZapAttribute {
     std::string name;
-    std::unordered_map<std::string, std::string> args;
+    std::vector<std::string> args;
 };
 
 struct ZapFunction {

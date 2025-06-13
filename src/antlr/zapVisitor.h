@@ -21,6 +21,8 @@ public:
    */
     virtual std::any visitProgram(zapParser::ProgramContext *context) = 0;
 
+    virtual std::any visitDeclaration(zapParser::DeclarationContext *context) = 0;
+
     virtual std::any visitStatement(zapParser::StatementContext *context) = 0;
 
     virtual std::any visitFunctionDecl(zapParser::FunctionDeclContext *context) = 0;

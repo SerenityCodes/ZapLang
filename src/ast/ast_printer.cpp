@@ -1,194 +1,335 @@
 #include "ast_printer.h"
+#include "ast.h"
 
 namespace ast {
 
-void ASTPrinter::indent(std::ostream& out, int level) {
-    for (int i = 0; i < level; ++i)
-        out << "  ";
+ZapPrettyPrinter::ZapPrettyPrinter(std::ostream& out) : out(out) {}
+
+void ZapPrettyPrinter::indent() {
+    indent_level++;
+}
+void ZapPrettyPrinter::printIndent() {
+    for (int i = 0; i < indent_level; ++i)
+        out << "    ";
 }
 
-void ASTPrinter::print(const ZapProgram& program, std::ostream& out) {
-    for (const auto& decl : program.declarations)
-        print_decl(decl, out, 0);
+void ZapPrettyPrinter::print(const ZapProgram& program) {
+    std::cout << "Declarations size: " << program.declarations.size() << '\n';
+    for (const auto& decl : program.declarations) {
+        print(decl);
+        out << "\n";
+    }
 }
 
-void ASTPrinter::print_type(const ZapType& type, std::ostream& out, int level) {
+void ZapPrettyPrinter::print(const ZapDecl& decl) {
+    switch (decl.kind) {
+        case ZapDeclKind::Function:
+            print(std::get<ZapFunction>(decl.value));
+            break;
+        case ZapDeclKind::Component:
+            print(std::get<ZapComponent>(decl.value));
+            break;
+        case ZapDeclKind::Struct:
+            print(std::get<ZapStruct>(decl.value));
+            break;
+    }
+}
+
+void ZapPrettyPrinter::print(const ZapComponent& comp) {
+    printIndent();
+    if (comp.is_readonly)
+        out << "readonly ";
+    out << "component " << comp.name << " {\n";
+    indent();
+    for (const auto& field : comp.fields) {
+        printIndent();
+        out << field.name << ": ";
+        print(field.type);
+        out << ";\n";
+    }
+    indent_level--;
+    printIndent();
+    out << "}\n";
+}
+
+void ZapPrettyPrinter::print(const ZapStruct& strct) {
+    printIndent();
+    out << "struct " << strct.name << " {\n";
+    indent();
+    for (const auto& field : strct.fields) {
+        printIndent();
+        out << field.name << ": ";
+        print(field.type);
+        out << ";\n";
+    }
+    indent_level--;
+    printIndent();
+    out << "}\n";
+}
+
+void ZapPrettyPrinter::print(const ZapFunction& func) {
+    for (const auto& attr : func.attributes) {
+        printIndent();
+        out << "@" << attr.name;
+        if (!attr.args.empty()) {
+            out << "(";
+            for (size_t i = 0; i < attr.args.size(); ++i) {
+                out << attr.args[i];
+                if (i + 1 < attr.args.size())
+                    out << ", ";
+            }
+            out << ")";
+        }
+        out << "\n";
+    }
+
+    printIndent();
+    out << "func " << func.name << "(";
+    for (size_t i = 0; i < func.params.size(); ++i) {
+        const auto& p = func.params[i];
+        out << p.name << ": ";
+        print(p.type);
+        if (i + 1 < func.params.size())
+            out << ", ";
+    }
+    out << ") -> ";
+    print(func.return_type);
+    out << " {\n";
+    indent();
+    for (const auto& stmt : func.body) {
+        print(stmt);
+    }
+    indent_level--;
+    printIndent();
+    out << "}\n";
+}
+
+void ZapPrettyPrinter::print(const ZapType& type) {
     switch (type.kind) {
-        case ZapTypeKind::CUSTOM:
+        case CUSTOM:
             out << *type.custom_name;
             break;
-        case ZapTypeKind::ARRAY:
-            out << "Array<";
-            print_type(*type.inner, out, level);
-            out << ">";
+        case ARRAY:
+            print(*type.inner);
+            out << "[]";
             break;
-        case ZapTypeKind::REF:
-            out << "Ref<";
-            print_type(*type.inner, out, level);
-            out << ">";
+        case REF:
+            out << "ref ";
+            print(*type.inner);
             break;
         default:
-            out << static_cast<int>(type.kind);  // Simplified
+            printTypeKind(type.kind);
+            break;
     }
 }
 
-void ASTPrinter::print_expr(const ZapExpression& expr, std::ostream& out, int level) {
-    indent(out, level);
-    out << "Expr(" << static_cast<int>(expr.kind) << "): ";
+void ZapPrettyPrinter::printTypeKind(ZapTypeKind kind) {
+    switch (kind) {
+        case U8:
+            out << "u8";
+            break;
+        case U16:
+            out << "u16";
+            break;
+        case U32:
+            out << "u32";
+            break;
+        case U64:
+            out << "u64";
+            break;
+        case I16:
+            out << "i16";
+            break;
+        case I32:
+            out << "i32";
+            break;
+        case I64:
+            out << "i64";
+            break;
+        case F32:
+            out << "f32";
+            break;
+        case F64:
+            out << "f64";
+            break;
+        case BOOL:
+            out << "bool";
+            break;
+        case STRING:
+            out << "str";
+            break;
+        case VOID:
+            out << "void";
+            break;
+        // add others as needed
+        default:
+            out << "unknown";
+            break;
+    }
+}
 
-    std::visit([&](auto&& val) {
-        using T = std::decay_t<decltype(val)>;
-        if constexpr (std::is_same_v<T, ZapLiteral>) {
-            std::visit([&](auto&& lit_val) {
-                out << "Literal: " << lit_val << "\n";
-            }, val.value);
-        } else if constexpr (std::is_same_v<T, ZapIdentifier>) {
-            out << "Identifier: " << val << "\n";
-        } else if constexpr (std::is_same_v<T, ZapBinaryExpression>) {
-            out << "Binary(\n";
-            print_expr(*val.left, out, level + 1);
-            indent(out, level + 1);
-            out << "Op: " << val.op << "\n";
-            print_expr(*val.right, out, level + 1);
-            indent(out, level);
-            out << ")\n";
-        } else if constexpr (std::is_same_v<T, ZapCallExpression>) {
-            out << "Call to " << val.function << "(\n";
-            for (const auto& arg : val.args)
-                print_expr(*arg, out, level + 1);
-            indent(out, level);
-            out << ")\n";
-        } else if constexpr (std::is_same_v<T, ZapAOTBlock>) {
-            out << "AOTBlock(\n";
-            for (const auto& stmt : val.statements)
-                print_stmt(stmt, out, level + 1);
-            indent(out, level + 1);
-            out << "Yield:\n";
-            print_expr(*val.yield_expr, out, level + 2);
-            indent(out, level);
-            out << ")\n";
-        } else if constexpr (std::is_same_v<T, ZapStructInitExpression>) {
-            out << "StructInit(" << val.type_name << ") {\n";
-            for (const auto& field : val.fields) {
-                indent(out, level + 1);
-                out << field.field << ": ";
-                print_expr(*field.value, out, 0);
+void ZapPrettyPrinter::print(const ZapStatement& stmt) {
+    printIndent();
+    switch (stmt.kind) {
+        case ZapStatementKind::Let:
+            print(std::get<ZapLetStatement>(stmt.value));
+            break;
+        case ZapStatementKind::Assign:
+            print(std::get<ZapAssignStatement>(stmt.value));
+            break;
+        case ZapStatementKind::Expression:
+            print(*std::get<std::shared_ptr<ZapExpression>>(stmt.value));
+            out << ";\n";
+            break;
+        case ZapStatementKind::Return:
+            out << "return ";
+            print(std::get<ZapReturnStatement>(stmt.value).value
+                      ? *std::get<ZapReturnStatement>(stmt.value).value
+                      : ZapExpression{});
+            out << ";\n";
+            break;
+        case ZapStatementKind::If:
+            ZapIfStatement if_statement = std::get<ZapIfStatement>(stmt.value);
+            out << "if (";
+            print(*if_statement.condition);
+            out << ") {\n";
+            break;
+
+        default:
+            out << "// [unimplemented statement]\n";
+    }
+}
+
+void ZapPrettyPrinter::print(const ZapLetStatement& let) {
+    out << "let " << let.name << ": ";
+    print(let.type);
+    out << " = ";
+    print(*let.value);
+    out << ";\n";
+}
+
+void ZapPrettyPrinter::print(const ZapAssignStatement& assign) {
+    print(*assign.target);
+    out << " = ";
+    print(*assign.value);
+    out << ";\n";
+}
+
+void ZapPrettyPrinter::print(const ZapExpression& expr) {
+    switch (expr.kind) {
+        case ZapExpressionKind::Literal: {
+            const auto& val = std::get<ZapLiteral>(expr.value).value;
+            std::visit([&](auto&& v) { out << v; }, val);
+            break;
+        }
+        case ZapExpressionKind::Identifier:
+            out << std::get<ZapIdentifier>(expr.value);
+            break;
+        case ZapExpressionKind::Binary: {
+            const auto& bin = std::get<ZapBinaryExpression>(expr.value);
+            out << "(";
+            print(*bin.left);
+            out << " ";
+            printBinaryOp(bin.op);
+            out << " ";
+            print(*bin.right);
+            out << ")";
+            break;
+        }
+        case ZapExpressionKind::Unary: {
+            const auto& un = std::get<ZapUnaryExpression>(expr.value);
+            printUnaryOp(un.op);
+            print(*un.unary);
+            break;
+        }
+        case ZapExpressionKind::Call: {
+            const auto& call = std::get<ZapCallExpression>(expr.value);
+            out << call.function << "(";
+            if (call.args.size() == 1) {
+                std::shared_ptr arg = call.args[0];
+                if (arg != nullptr) {
+                    print(*arg);
+                }
+            } else {
+                for (size_t i = 0; i < call.args.size(); ++i) {
+                    std::shared_ptr arg = call.args[i];
+                    if (arg != nullptr) {
+                        print(*arg);
+                        out << ", ";
+                    }
+                }
             }
-            indent(out, level);
-            out << "}\n";
+            out << ")";
+            break;
         }
-    }, expr.value);
-}
-
-void ASTPrinter::print_stmt(const ZapStatement& stmt, std::ostream& out, int level) {
-    indent(out, level);
-    out << "Stmt(" << static_cast<int>(stmt.kind) << "):\n";
-
-    std::visit([&](auto&& val) {
-        using T = std::decay_t<decltype(val)>;
-        if constexpr (std::is_same_v<T, ZapLetStatement>) {
-            indent(out, level + 1);
-            out << "Let " << val.name << " : ";
-            print_type(val.type, out, level + 1);
-            out << " =\n";
-            print_expr(*val.value, out, level + 2);
-        } else if constexpr (std::is_same_v<T, ZapAssignStatement>) {
-            indent(out, level + 1);
-            out << "Assign:\n";
-            print_expr(*val.target, out, level + 2);
-            print_expr(*val.value, out, level + 2);
-        } else if constexpr (std::is_same_v<T, std::unique_ptr<ZapExpression>>) {
-            print_expr(*val, out, level + 1);
-        } else if constexpr (std::is_same_v<T, ZapIfStatement>) {
-            indent(out, level + 1);
-            out << "If:\n";
-            print_expr(*val.condition, out, level + 2);
-            indent(out, level + 1);
-            out << "Then:\n";
-            for (const auto& s : val.then_block)
-                print_stmt(s, out, level + 2);
-            if (!val.else_block.empty()) {
-                indent(out, level + 1);
-                out << "Else:\n";
-                for (const auto& s : val.else_block)
-                    print_stmt(s, out, level + 2);
-            }
-        } else if constexpr (std::is_same_v<T, ZapForStatement>) {
-            indent(out, level + 1);
-            out << "For " << val.var << ":\n";
-            print_expr(*val.start, out, level + 2);
-            print_expr(*val.condition, out, level + 2);
-            print_expr(*val.step, out, level + 2);
-            for (const auto& s : val.body)
-                print_stmt(s, out, level + 2);
-        } else if constexpr (std::is_same_v<T, ZapReturnStatement>) {
-            indent(out, level + 1);
-            out << "Return:\n";
-            print_expr(*val.value, out, level + 2);
-        } else if constexpr (std::is_same_v<T, ZapDeferStatement>) {
-            indent(out, level + 1);
-            out << "Defer:\n";
-            print_expr(*val.expr, out, level + 2);
-        }
-    }, stmt.value);
-}
-
-void ASTPrinter::print_function(const ZapFunction& func, std::ostream& out, int level) {
-    indent(out, level);
-    out << "Function " << func.name << "(\n";
-    for (const auto& param : func.params) {
-        indent(out, level + 1);
-        out << param.name << ": ";
-        print_type(param.type, out, level + 1);
-        out << "\n";
+        default:
+            out << "[unsupported expression]";
+            break;
     }
-    indent(out, level);
-    out << ") -> ";
-    print_type(func.return_type, out, level);
-    out << "\n";
-
-    for (const auto& stmt : func.body)
-        print_stmt(stmt, out, level + 1);
 }
 
-void ASTPrinter::print_struct(const ZapStruct& strct, std::ostream& out, int level) {
-    indent(out, level);
-    out << "Struct " << strct.name << " {\n";
-    for (const auto& field : strct.fields) {
-        indent(out, level + 1);
-        out << field.name << ": ";
-        print_type(field.type, out, level + 1);
-        out << "\n";
+void ZapPrettyPrinter::printBinaryOp(BinaryOp op) {
+    switch (op) {
+        case ASSIGNMENT:
+            out << "=";
+            break;
+        case ADD:
+            out << "+";
+            break;
+        case SUBTRACT:
+            out << "-";
+            break;
+        case MULTIPLY:
+            out << "*";
+            break;
+        case DIVIDE:
+            out << "/";
+            break;
+        case MOD:
+            out << "%";
+            break;
+        case EQUAL:
+            out << "==";
+            break;
+        case NOT_EQUAL:
+            out << "!=";
+            break;
+        case LESS_THAN:
+            out << "<";
+            break;
+        case LESS_THAN_OR_EQUAL:
+            out << "<=";
+            break;
+        case GREATER_THAN:
+            out << ">";
+            break;
+        case GREATER_THAN_OR_EQUAL:
+            out << ">=";
+            break;
+        case AND:
+            out << "&&";
+            break;
+        case OR:
+            out << "||";
+            break;
+        default:
+            out << "?";
+            break;
     }
-    indent(out, level);
-    out << "}\n";
 }
 
-void ASTPrinter::print_component(const ZapComponent& comp, std::ostream& out, int level) {
-    indent(out, level);
-    out << (comp.is_readonly ? "Readonly " : "") << "Component " << comp.name << " {\n";
-    for (const auto& field : comp.fields) {
-        indent(out, level + 1);
-        out << field.name << ": ";
-        print_type(field.type, out, level + 1);
-        out << "\n";
+void ZapPrettyPrinter::printUnaryOp(BinaryOp op) {
+    switch (op) {
+        case NOT:
+            out << "!";
+            break;
+        case NEGATIVE:
+            out << "-";
+            break;
+        default:
+            out << "?";
+            break;
     }
-    indent(out, level);
-    out << "}\n";
-}
-
-void ASTPrinter::print_decl(const ZapDecl& decl, std::ostream& out, int level) {
-    std::visit([&](auto&& val) {
-        using T = std::decay_t<decltype(val)>;
-        if constexpr (std::is_same_v<T, ZapFunction>) {
-            print_function(val, out, level);
-        } else if constexpr (std::is_same_v<T, ZapComponent>) {
-            print_component(val, out, level);
-        } else if constexpr (std::is_same_v<T, ZapStruct>) {
-            print_struct(val, out, level);
-        }
-    }, decl.value);
 }
 
 }  // namespace ast
-

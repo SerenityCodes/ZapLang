@@ -13,14 +13,13 @@ class  zapLexer : public antlr4::Lexer {
 public:
   enum {
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
-    T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
-    T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
-    T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, T__24 = 25, BOOL = 26, 
-    IF = 27, ELSE = 28, WHILE = 29, FOR = 30, RETURN = 31, YIELD = 32, DEFER = 33, 
-    LET = 34, FUNC = 35, STRUCT = 36, COMPONENT = 37, READONLY = 38, MODULE = 39, 
-    SYSTEM = 40, AOT = 41, REF = 42, VOID = 43, ARROW = 44, USE = 45, INT = 46, 
-    FLOAT = 47, STRING = 48, IDENTIFIER = 49, WS = 50, LINE_COMMENT = 51, 
-    BLOCK_COMMENT = 52
+    T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, BOOL = 13, IF = 14, 
+    ELSE = 15, WHILE = 16, FOR = 17, RETURN = 18, YIELD = 19, DEFER = 20, 
+    LET = 21, FUNC = 22, STRUCT = 23, COMPONENT = 24, READONLY = 25, MODULE = 26, 
+    AOT = 27, REF = 28, VOID = 29, ARROW = 30, USE = 31, OR = 32, AND = 33, 
+    EQ = 34, NEQ = 35, ADD = 36, SUB = 37, MUL = 38, DIV = 39, MOD = 40, 
+    LT = 41, LTE = 42, GT = 43, GTE = 44, NOT = 45, INT = 46, FLOAT = 47, 
+    STRING = 48, IDENTIFIER = 49, WS = 50, LINE_COMMENT = 51, BLOCK_COMMENT = 52
   };
 
   explicit zapLexer(antlr4::CharStream *input);

@@ -39,9 +39,8 @@ This is a C++-based programming language parser for ZapLang, a games programming
    - Run `clang-format` to ensure consistent formatting
    - Follow C++ standard formatting conventions
 4. **Parser Development**: When modifying the ANTLR grammar files, ensure corresponding C++ code is updated and test coverage is added
-5. **Test-Driven Development**: Write tests for new functionality following existing patterns. Use descriptive test names and organize tests logically
-6. **Error Handling**: Use appropriate C++ error handling mechanisms and provide meaningful error messages. Exceptions are not allowed unless absolutely necessary
-7. **Documentation**: Document public APIs and complex parsing logic when adding new language features
+5. **Error Handling**: Use appropriate C++ error handling mechanisms and provide meaningful error messages. Exceptions are not allowed unless absolutely necessary
+6. **Documentation**: Document public APIs and complex parsing logic when adding new language features
 
 ## ZapLang Language Features
 When extending the language, maintain consistency with existing features:

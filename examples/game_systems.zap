@@ -16,16 +16,16 @@ struct GameSettings {
 }
 
 // System to update health each frame
-@system(Update)
-func update_health(entity: u32, health: ref Health) {
+@[system(Update)]
+func update_health(entity: u32, health: ref Health) -> void {
     if (health.value > 0) {
         health.value = health.value - 1;
     }
 }
 
 // Run once before the main loop starts
-@system(Init)
-func init_system() {
+@[system(Init)]
+func init_system() -> void {
     log("Initializing game systems...");
 }
 
@@ -50,12 +50,6 @@ func load_assets() -> void {
 func main() -> void {
     engine.initialize();
 
-    let settings: GameSettings = {
-        max_players: 32,
-        gravity: 9.81
-    };
-
-    log("Max players: ", settings.max_players);
     log("Spawn points: ", get_spawn_points());
 
     let job_id: u32 = job.spawn(load_assets);

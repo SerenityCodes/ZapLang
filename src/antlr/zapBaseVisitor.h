@@ -19,6 +19,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitDeclaration(zapParser::DeclarationContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitStatement(zapParser::StatementContext *ctx) override {
     return visitChildren(ctx);
   }
