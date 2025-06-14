@@ -4,11 +4,11 @@
 #include <iostream>
 #include <string>
 #include "ANTLRInputStream.h"
+#include "ASTVisitor.h"
 #include "CommonTokenStream.h"
 #include "antlr/zapLexer.h"
 #include "antlr/zapParser.h"
 #include "antlr4-runtime.h"
-#include "ASTVisitor.h"
 #include "ast/ast.h"
 #include "ast/ast_printer.h"
 
@@ -32,13 +32,14 @@ int main(int argc, const char *argv[]) {
     antlr4::CommonTokenStream tokens(&lexer);
 
     zapParser parser(&tokens);
-    zapParser::ProgramContext* program_ctx = parser.program();
+    zapParser::ProgramContext *program_ctx = parser.program();
     if (parser.getNumberOfSyntaxErrors() > 0) {
         return 1;
     }
-    
+
     ASTVisitor visitor;
-    ast::ZapProgram program = std::any_cast<ast::ZapProgram>(visitor.visit(program_ctx));
+    ast::ZapProgram program =
+        std::any_cast<ast::ZapProgram>(visitor.visit(program_ctx));
     ast::ZapPrettyPrinter printer{std::cout};
     printer.print(program);
 

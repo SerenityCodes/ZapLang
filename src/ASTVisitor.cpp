@@ -47,7 +47,7 @@ std::any ASTVisitor::visitStructField(zapParser::StructFieldContext* ctx) {
 }
 
 std::any ASTVisitor::visitStructDecl(zapParser::StructDeclContext* ctx) {
-    std::vector<ast::ZapField> zap_fields{ctx->structField().size()};
+    std::vector<ast::ZapField> zap_fields;
     for (zapParser::StructFieldContext* field_ctx : ctx->structField()) {
         zap_fields.push_back(
             std::any_cast<ast::ZapField>(visitStructField(field_ctx)));
@@ -57,7 +57,7 @@ std::any ASTVisitor::visitStructDecl(zapParser::StructDeclContext* ctx) {
 }
 
 std::any ASTVisitor::visitComponentDecl(zapParser::ComponentDeclContext* ctx) {
-    std::vector<ast::ZapField> zap_fields{ctx->structField().size()};
+    std::vector<ast::ZapField> zap_fields;
     for (zapParser::StructFieldContext* field_ctx : ctx->structField()) {
         zap_fields.push_back(
             std::any_cast<ast::ZapField>(visitStructField(field_ctx)));
@@ -334,30 +334,66 @@ std::any ASTVisitor::visitCall(zapParser::CallContext* ctx) {
     std::shared_ptr<ast::ZapExpression> primary =
         std::any_cast<std::shared_ptr<ast::ZapExpression>>(
             visitPrimary(ctx->primary()));
-    if (ctx->argumentList().size() == 0 && ctx->IDENTIFIER().empty()) {
-        return primary;
+
+    // Check if this is a function call by looking for parentheses in the parse tree
+    bool has_parentheses = false;
+    for (auto child : ctx->children) {
+        if (child->getText() == "(") {
+            has_parentheses = true;
+            break;
+        }
     }
-    ast::LiteralString f_name = std::get<ast::LiteralString>(primary->value);
+
+    // Handle member access (with or without function call)
     if (!ctx->IDENTIFIER().empty()) {
-        // Struct member access
-        return std::make_shared<ast::ZapExpression>(ast::ZapExpression{
-            .kind  = ast::ZapExpressionKind::StructAccess,
-            .value = ast::ZapStructAccessExpression{
-                .type = f_name, .field = ctx->IDENTIFIER(0)->getText()}});
+        ast::LiteralString f_name =
+            std::get<ast::LiteralString>(primary->value);
+
+        if (has_parentheses) {
+            // Member access + function call: obj.method()
+            std::vector<std::shared_ptr<ast::ZapExpression>> args;
+            if (!ctx->argumentList().empty()) {
+                args = std::any_cast<
+                    std::vector<std::shared_ptr<ast::ZapExpression>>>(
+                    visitArgumentList(ctx->argumentList()[0]));
+            }
+
+            return std::make_shared<ast::ZapExpression>(ast::ZapExpression{
+                .kind  = ast::ZapExpressionKind::Call,
+                .value = ast::ZapCallExpression{
+                    .function = f_name + "." + ctx->IDENTIFIER(0)->getText(),
+                    .args     = args}});
+        } else {
+            // Just member access: obj.property
+            return std::make_shared<ast::ZapExpression>(ast::ZapExpression{
+                .kind  = ast::ZapExpressionKind::StructAccess,
+                .value = ast::ZapStructAccessExpression{
+                    .type = f_name, .field = ctx->IDENTIFIER(0)->getText()}});
+        }
     }
-    // Not supporting f()() for now
-    return std::make_shared<ast::ZapExpression>(ast::ZapExpression{
-        .kind  = ast::ZapExpressionKind::Call,
-        .value = ast::ZapCallExpression{
-            .function = f_name,
-            .args =
+
+    if (has_parentheses) {
+        // Simple function call: func()
+        ast::LiteralString f_name =
+            std::get<ast::LiteralString>(primary->value);
+        std::vector<std::shared_ptr<ast::ZapExpression>> args;
+        if (!ctx->argumentList().empty()) {
+            args =
                 std::any_cast<std::vector<std::shared_ptr<ast::ZapExpression>>>(
-                    visitArgumentList(ctx->argumentList()[0]))}});
+                    visitArgumentList(ctx->argumentList()[0]));
+        }
+
+        return std::make_shared<ast::ZapExpression>(ast::ZapExpression{
+            .kind  = ast::ZapExpressionKind::Call,
+            .value = ast::ZapCallExpression{.function = f_name, .args = args}});
+    }
+
+    // No parentheses, no member access - return bare identifier
+    return primary;
 }
 
 std::any ASTVisitor::visitArgumentList(zapParser::ArgumentListContext* ctx) {
-    std::vector<std::shared_ptr<ast::ZapExpression>> args{
-        ctx->expression().size()};
+    std::vector<std::shared_ptr<ast::ZapExpression>> args;
     for (zapParser::ExpressionContext* expression_ctx : ctx->expression()) {
         args.push_back(std::any_cast<std::shared_ptr<ast::ZapExpression>>(
             visitExpression(expression_ctx)));
@@ -444,7 +480,7 @@ std::any ASTVisitor::visitAttributeArgs(zapParser::AttributeArgsContext* ctx) {
     if (!ctx) {
         return std::vector<std::string>{};
     }
-    std::vector<std::string> args{ctx->attributeArg().size()};
+    std::vector<std::string> args;
     for (zapParser::AttributeArgContext* arg : ctx->attributeArg()) {
         args.push_back(std::any_cast<std::string>(visitAttributeArg(arg)));
     }
@@ -452,16 +488,28 @@ std::any ASTVisitor::visitAttributeArgs(zapParser::AttributeArgsContext* ctx) {
 }
 
 std::any ASTVisitor::visitParameter(zapParser::ParameterContext* ctx) {
-    ast::ZapType zap_type = std::any_cast<ast::ZapType>(visitType(ctx->type()));
+    ast::ZapType base_type =
+        std::any_cast<ast::ZapType>(visitType(ctx->type()));
+
+    // Check if this is a REF type
+    if (ctx->REF()) {
+        ast::ZapType ref_type{
+            .kind        = ast::ZapTypeKind::REF,
+            .custom_name = nullptr,
+            .inner       = std::make_shared<ast::ZapType>(base_type)};
+        return ast::ZapParam{.name = ctx->IDENTIFIER()->getText(),
+                             .type = ref_type};
+    }
+
     return ast::ZapParam{.name = ctx->IDENTIFIER()->getText(),
-                         .type = zap_type};
+                         .type = base_type};
 }
 
 std::any ASTVisitor::visitParameterList(zapParser::ParameterListContext* ctx) {
     if (!ctx) {
         return std::vector<ast::ZapParam>{};
     }
-    std::vector<ast::ZapParam> params{ctx->parameter().size()};
+    std::vector<ast::ZapParam> params;
     for (zapParser::ParameterContext* parameter : ctx->parameter()) {
         params.push_back(
             std::any_cast<ast::ZapParam>(visitParameter(parameter)));
@@ -524,11 +572,22 @@ ast::ZapTypeKind get_type_kind(zapParser::TypeContext* ctx) {
 }
 
 std::any ASTVisitor::visitType(zapParser::TypeContext* ctx) {
-    // Ignoring generic types for now
     ast::ZapTypeKind kind = get_type_kind(ctx);
-    ast::ZapType type{.kind        = kind,
-                      .custom_name = std::make_unique<ast::ZapIdentifier>(),
-                      .inner       = std::make_unique<ast::ZapType>()};
+    ast::ZapType type{.kind = kind, .custom_name = nullptr, .inner = nullptr};
+
+    if (kind == ast::ZapTypeKind::CUSTOM) {
+        type.custom_name =
+            std::make_shared<ast::ZapIdentifier>(ctx->IDENTIFIER()->getText());
+    } else if (kind == ast::ZapTypeKind::ARRAY) {
+        // For arrays, create inner type without the array brackets
+        // This is a simplified implementation - we'd need to parse the inner type properly
+        type.inner       = std::make_shared<ast::ZapType>();
+        type.inner->kind = from_string(ctx->IDENTIFIER()->getText());
+        if (type.inner->kind == ast::ZapTypeKind::CUSTOM) {
+            type.inner->custom_name = std::make_shared<ast::ZapIdentifier>(
+                ctx->IDENTIFIER()->getText());
+        }
+    }
 
     return type;
 }
