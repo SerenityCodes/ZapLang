@@ -1,6 +1,6 @@
 # Zap IR
 
-Zap IR is the intermediate stage between the AST and whatever the target architecture is. Currently, the plan is to support a compliation target to C++, LLVM, and a bytecode VM for quick development. The IR can be summarized as a typed assembly language, with similarities to LLVM IR to make it easier to compile to LLVM. It is a simplfied SSA-based IR to make compiler optimizations easier and more effective.
+Zap IR is the intermediate stage between the AST and whatever the target architecture is. Currently, the plan is to support a compilation target to C++, LLVM, and a bytecode VM for quick development. The IR can be summarized as a typed assembly language, with similarities to LLVM IR to make it easier to compile to LLVM. It is a simplfied SSA-based IR to make compiler optimizations easier and more effective.
 
 ---
 ## Core Elements
@@ -146,13 +146,13 @@ store %ptr, 42            ; Store 42 in memory
 
 ### Arena Memory Operations
 
-#### ArenaPush
+#### ArenaAlloc
 
 Allocate memory from an arena.
 
 ```text
-%ptr = arena_pop %arena, u32       ; Push a u32 onto the arena
-%entity = arena_pop %arena, Player ; Push a Player struct
+%ptr = arena_alloc %arena, u32       ; Push a u32 onto the arena
+%entity = arena_alloc %arena, Player ; Push a Player struct
 ```
 
 #### ArenaClear
@@ -265,12 +265,12 @@ attributes: [system("Update")]
 entry:
     %1 = component_load %entity, Health.value
     %2 = gt %1, 0
-    condbr %2, then_block, end_block
+    br %2, then_block, end_block
 
 then_block:
     %3 = sub %1, 1
     component_store %entity, Health.value, %3
-    br end_block
+    jmp end_block
 
 end_block:
     ret
