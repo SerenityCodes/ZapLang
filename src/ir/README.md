@@ -30,7 +30,7 @@ component <name> (<name>: <type>, ...)
 ### Values
 Values represent operands for instructions. They include:
 - **Immediate:** A constant value like 10, "Nice", 20.1000, 3.145, etc...
-- **Register:** Virutal registers like `%1`, `%2`. Note that there is no limit placed on these, as register allocation is done from IR -> target.
+- **Register:** Virtual registers like `%1`, `%2`. Note that there is no limit placed on these, as register allocation is done from IR -> target.
 - **Static:** Strings, constant arrays, and other constants will be stored in static memory (.bss) or on the stack when able.
 ---
 
