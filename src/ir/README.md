@@ -1,6 +1,6 @@
 # Zap IR
 
-Zap IR is the intermediate stage between the AST and whatever the target architecture is. Currently, the plan is to support a compilation target to C++, LLVM, and a bytecode VM for quick development. The IR can be summarized as a typed assembly language, with similarities to LLVM IR to make it easier to compile to LLVM. It is a simplfied SSA-based IR to make compiler optimizations easier and more effective.
+Zap IR is the intermediate stage between the AST and whatever the target architecture is. Currently, the plan is to support a compilation target to C++, LLVM, and a bytecode VM for quick development. The IR can be summarized as a typed assembly language, with similarities to LLVM IR to make it easier to compile to LLVM. It is a simplified SSA-based IR to make compiler optimizations easier and more effective.
 
 ---
 ## Core Elements
