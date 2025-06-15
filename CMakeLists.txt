@@ -1,5 +1,5 @@
-project(ZapLang)
 cmake_minimum_required(VERSION 3.15)
+project(ZapLang)
 
 # Gather ANTLR sources
 file(GLOB_RECURSE ANTLR_SOURCES
