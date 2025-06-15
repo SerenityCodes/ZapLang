@@ -54,7 +54,6 @@ Like Go, Zap has a simple syntax, inspired by Zig's approach to clarity. Given t
 🔁 **Systems**
 - Any func with component parameters and an attribute like `@[system(Update)]`
 - Runtime auto-discovers and schedules them
-- Systems support `ref`, `val`, and `mut` semantics
 
 📦 **Modules**
 - Support for `module` declarations
