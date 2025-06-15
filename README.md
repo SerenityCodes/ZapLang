@@ -265,7 +265,7 @@ let computed_value: u32 = aot {
 
 📜 **License**
 
-GPL v3 License — free to use, modify, and distribute the language under GPL terms.
-MIT License - for any games built with Zap, only attribution is required. All commercial rights for your games are yours.
+- GPL v3 License — free to use, modify, and distribute the language under GPL terms.
+- MIT License - for any games built with Zap, only attribution is required. All commercial rights for your games are yours.
 
 ---
