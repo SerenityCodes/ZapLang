@@ -1,4 +1,4 @@
-# 🎮 ZapLang — The Game Programming Language
+# ⚡ ZapLang — The ECS Programming Language for Games
 
 ## Introduction
 
@@ -12,7 +12,7 @@ It can compile to **LLVM IR** for maximum performance, **C++** for easy integrat
 
 ZapLang was born from the frustration of building a 3D renderer in C++ and wanting to create a full game. Writing ECS (Entity-Component-System) code felt unintuitive and clunky—there had to be a better way. While Flecs has their own scripting language, I wanted to take it a step further and create a programming language that could stand on its own while being purpose-built for game development. ZapLang is built on the frustration of not having a programming language that is designed for games. The only other comparable language is Jai, but it remains closed source for the foreseeable future.
 
-🧩 **Components Are First-Class Citizens**  
+#### Components Are First-Class Citizens
 Unlike C++, Rust, or C#, Zap has *language-level support for ECS*—components aren't structs with annotations. They're baked into the syntax and semantics.
 
 ```zap
@@ -21,7 +21,7 @@ component Health {
 }
 ```
 
-⚡ **Attributes for Systems, Events, and Tooling**  
+#### Attributes for Systems, Events, and Tooling
 Declarative annotations let the engine or runtime identify key behavior:
 
 ```zap
@@ -33,18 +33,18 @@ func update_health(entity: u32, health: ref Health) -> void {
 }
 ```
 
-🧠 **Flexible Compilation Targets**  
-Zap can compile to native code via LLVM for maximum performance, C++ for easy embedding into existing projects, or bytecode for fast iteration during development. While there's a bytecode option for rapid prototyping, the end goal is to be able to self-host and not have to use the VM unless you want to.
+#### Flexible Compilation Targets
+Zap can compile to native code via LLVM for maximum performance, C++ for easy embedding into existing projects, or bytecode for fast iteration during development. Each option tailors to different developers at different points during the development cycle.
 
-🛠 **Simplicity + Performance**  
-Like Go, Zap has a simple syntax—inspired by Zig's approach to clarity. Like Rust and C++, it offers raw performance. But unlike both, it doesn't fight you or over-abstract — what you write is what you get.
+#### Simplicity + Performance
+Like Go, Zap has a simple syntax, inspired by Zig's approach to clarity. Given the domain-specific nature, it offers raw performance at C++ speeds in a higher level language.
 
 ## Features
 
 🧱 **Components**
 - Declared with the `component` keyword
 - Native ECS-style storage expected in runtime
-- Read/write semantics using `ref`, `val`
+- Copy/Reference semantics using `ref` instead of pointers
 
 ⚙️ **Attributes**
 - Declared with `@[name(args...)]`
@@ -66,8 +66,8 @@ Like Go, Zap has a simple syntax—inspired by Zig's approach to clarity. Like R
 - Supports native interop (C ABI)
 - Optimizable at the IR level
 
-🧩 **Memory Model**
-- No garbage collection
+🧩 **Arena Memory Model**
+- Instead of garbage collection or a borrow checker, the arena memory model is used. Allows for complex lifetimes without the hassle of a borrow checker.
 - Deterministic lifetimes and ownership
 - Component storage and memory layout designed for cache-friendliness
 
@@ -129,7 +129,7 @@ func main() -> void {
 
 ### 🎯 Game-Centric Design Goals
 
-Zap isn't trying to replace every language. It's an ECS-focused language trying to be the best for writing game logic, ECS systems, and engine internals. While it could potentially handle systems programming tasks, it's certainly not optimized for that—it's optimized for games.
+Zap isn't trying to replace every language. It's an ECS-focused language trying to be the best for writing game logic, ECS systems, and engine internals. While it could handle systems programming tasks, it's certainly not optimized for that. It's optimized for games.
 
 | Feature | ZapLang | C++ | Rust | Go |
 |---------|---------|-----|------|-----|
@@ -153,9 +153,9 @@ ZapLang is currently in development. Major components:
 - 🚧 Type inference
 - ⏳ Game runtime (ECS scheduler, memory layout)
 - ⏳ Module system
-- ⏳ Tooling (formatter, LSP)
+- ⏳ Tooling (formatter, LSP, build system)
 
-### ⚙️ Build Instructions
+### Build Instructions
 
 ```bash
 git clone https://github.com/SerenityCodes/ZapLang
@@ -265,12 +265,7 @@ let computed_value: u32 = aot {
 
 📜 **License**
 
-GPL v3 License — free to use, modify, and distribute under GPL terms.
+GPL v3 License — free to use, modify, and distribute the language under GPL terms.
+MIT License - for any games built with Zap, only attribution is required. All commercial rights for your games are yours.
 
 ---
-
-🚀 **Try It, Hack It, Build Games With It**
-
-ZapLang is a bold attempt to build the ideal game language — by game developers, for game developers. Want to help shape the future of game programming?
-
-👉 Star the repo, file issues, and come build with us.
