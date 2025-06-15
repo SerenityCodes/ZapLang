@@ -5,31 +5,41 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     
     steps:
     - uses: actions/checkout@v4
     
-    - name: Install Rust
-      uses: dtolnay/rust-toolchain@stable
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake build-essential clang-format
       
-    - name: Cache cargo dependencies
+    - name: Cache CMake build
       uses: actions/cache@v4
       with:
         path: |
-          ~/.cargo/bin/
-          ~/.cargo/registry/index/
-          ~/.cargo/registry/cache/
-          ~/.cargo/git/db/
-          target/
-        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          build/
+        key: ${{ runner.os }}-cmake-${{ hashFiles('CMakeLists.txt', 'src/**/*.cpp', 'src/**/*.h') }}
+        restore-keys: |
+          ${{ runner.os }}-cmake-
+        
+    - name: Configure CMake
+      run: |
+        mkdir -p build
+        cd build
+        cmake ..
         
     - name: Build
-      run: cargo build --verbose
+      run: |
+        cd build
+        make --jobs=$(nproc)
       
-    - name: Run tests
-      run: cargo test --verbose
+    - name: Test build artifacts
+      run: |
+        cd build
+        ./zapc ../examples/simple.zap
       
     - name: Check formatting
-      run: cargo fmt --check
+      run: clang-format --dry-run --Werror src/*.cpp src/*.h src/**/*.cpp src/**/*.h
