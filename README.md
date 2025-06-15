@@ -4,11 +4,13 @@
 
 **ZapLang** is a modern, statically typed programming language built *from the ground up* for **game development** and **game engine architecture**.
 
-It compiles directly to **LLVM IR**, giving you unmatched performance, predictable control over memory, and a clean syntax optimized for **entity-component systems**, **real-time simulation**, and **high-performance gameplay code**.
+It can compile to **LLVM IR** for maximum performance, **C++** for easy integration with existing codebases, or **bytecode** for fast iteration during development. This gives you unmatched flexibility, predictable control over memory, and a clean syntax optimized for **entity-component systems**, **real-time simulation**, and **high-performance gameplay code**.
 
 > Zap is not a general-purpose language that *can* be used for games — it's a language that exists *for games.*
 
 ## Motivation
+
+ZapLang was born from the frustration of building a 3D renderer in C++ and wanting to create a full game. Writing ECS (Entity-Component-System) code felt unintuitive and clunky—there had to be a better way. While Flecs has their own scripting language, I wanted to take it a step further and create a programming language that could stand on its own while being purpose-built for game development. ZapLang is built on the frustration of not having a programming language that is designed for games. The only other comparable language is Jai, but it remains closed source for the foreseeable future.
 
 🧩 **Components Are First-Class Citizens**  
 Unlike C++, Rust, or C#, Zap has *language-level support for ECS*—components aren't structs with annotations. They're baked into the syntax and semantics.
@@ -31,11 +33,11 @@ func update_health(entity: u32, health: ref Health) -> void {
 }
 ```
 
-🧠 **Direct-to-LLVM Compilation**  
-Zap compiles to native code via LLVM, no bytecode or virtual machine. That means instant performance and seamless FFI with C/C++ libraries.
+🧠 **Flexible Compilation Targets**  
+Zap can compile to native code via LLVM for maximum performance, C++ for easy embedding into existing projects, or bytecode for fast iteration during development. While there's a bytecode option for rapid prototyping, the end goal is to be able to self-host and not have to use the VM unless you want to.
 
 🛠 **Simplicity + Performance**  
-Like Go, Zap has a simple syntax. Like Rust and C++, it offers raw performance. But unlike both, it doesn't fight you or over-abstract — what you write is what you get.
+Like Go, Zap has a simple syntax—inspired by Zig's approach to clarity. Like Rust and C++, it offers raw performance. But unlike both, it doesn't fight you or over-abstract — what you write is what you get.
 
 ## Features
 
@@ -58,8 +60,9 @@ Like Go, Zap has a simple syntax. Like Rust and C++, it offers raw performance. 
 - Support for `module` declarations
 - Encapsulation and hierarchy for game projects
 
-⚡ **LLVM IR Output**
-- Compiles directly to native machine code
+⚡ **Multiple Compilation Targets**
+- Compiles to LLVM IR for native machine code performance
+- Can compile to C++ for easy embedding into existing C++ projects
 - Supports native interop (C ABI)
 - Optimizable at the IR level
 
@@ -126,7 +129,7 @@ func main() -> void {
 
 ### 🎯 Game-Centric Design Goals
 
-Zap isn't trying to replace every language. It's trying to be the best language for writing game logic, systems code, and engine internals.
+Zap isn't trying to replace every language. It's an ECS-focused language trying to be the best for writing game logic, ECS systems, and engine internals. While it could potentially handle systems programming tasks, it's certainly not optimized for that—it's optimized for games.
 
 | Feature | ZapLang | C++ | Rust | Go |
 |---------|---------|-----|------|-----|
