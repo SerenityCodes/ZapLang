@@ -14,7 +14,7 @@ file(GLOB_RECURSE GENERATED_SOURCES
     src/ast/*.cpp
 )
 
-# Gather runtime sources (excluding Vulkan and Engine for now)
+# Gather runtime sources (excluding Vulkan, Engine, and Systems due to external dependencies)
 file(GLOB RUNTIME_CORE_SOURCES
     src/runtime/Memory/*.cpp
     src/runtime/Memory/Allocators/*.cpp
