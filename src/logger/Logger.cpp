@@ -7,7 +7,7 @@ std::shared_ptr<spdlog::logger> Logger::m_client_logger_{nullptr};
 
 void Logger::Init() {
     spdlog::set_pattern("%^[%T] %n: %v%$");
-    m_core_logger_ = spdlog::stdout_color_mt("Core");
+    m_core_logger_   = spdlog::stdout_color_mt("Core");
     m_client_logger_ = spdlog::stdout_color_mt("Client");
 
 #ifdef DEBUG

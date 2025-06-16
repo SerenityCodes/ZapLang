@@ -6,9 +6,10 @@
 class Logger {
     static std::shared_ptr<spdlog::logger> m_core_logger_;
     static std::shared_ptr<spdlog::logger> m_client_logger_;
-public:
+
+   public:
     static void Init();
-    
+
     static std::shared_ptr<spdlog::logger> core_logger();
     static std::shared_ptr<spdlog::logger> client_logger();
 };
