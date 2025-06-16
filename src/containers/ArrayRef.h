@@ -1,13 +1,14 @@
 ﻿#pragma once
 #include <iterator>
 
-#include "Memory/Arena.h"
+#include "../Memory/Arena.h"
 
 template <typename T>
 class ArrayRef {
     T* m_data_;
     size_t m_size_;
-public:
+
+   public:
     ArrayRef() = default;
     ArrayRef(const std::initializer_list<T>& init, Arena& arena);
     ArrayRef(T* data, size_t size);
@@ -16,7 +17,7 @@ public:
     ArrayRef& operator=(const ArrayRef& other) = delete;
     ArrayRef& operator=(ArrayRef&& other) noexcept;
     ~ArrayRef() = default;
-    
+
     T& operator[](size_t index);
     T& operator[](size_t index) const;
     [[nodiscard]] size_t size() const;
@@ -27,13 +28,14 @@ public:
     class iterator {
         Ptr ptr;
         size_t index;
-    public:
+
+       public:
         using iterator_category = std::random_access_iterator_tag;
-        using value_type = T;
-        using difference_type = std::ptrdiff_t;
-        using pointer = Ptr;
-        using reference = Ref;
-        
+        using value_type        = T;
+        using difference_type   = std::ptrdiff_t;
+        using pointer           = Ptr;
+        using reference         = Ref;
+
         iterator(Ptr ptr, size_t index) : ptr(ptr), index(index) {}
 
         iterator& operator++() {
@@ -46,53 +48,35 @@ public:
             return *this;
         }
 
-        reference operator*() {
-            return *(ptr + index);
-        }
+        reference operator*() { return *(ptr + index); }
 
         difference_type operator-(const iterator& other) {
             return index - other.index;
         }
 
         difference_type operator+(const iterator& other) {
-            return index + other.index;   
+            return index + other.index;
         }
 
-        bool operator==(const iterator& other) {
-            return index == other.index;
-        }
+        bool operator==(const iterator& other) { return index == other.index; }
 
-        bool operator!=(const iterator& other) {
-            return index != other.index;
-        }
+        bool operator!=(const iterator& other) { return index != other.index; }
     };
 
     using non_const_iterator = iterator<T*, T&>;
-    using const_iterator = iterator<const T*, const T&>;
+    using const_iterator     = iterator<const T*, const T&>;
 
-    non_const_iterator begin() {
-        return non_const_iterator(m_data_, 0);
-    }
+    non_const_iterator begin() { return non_const_iterator(m_data_, 0); }
 
-    non_const_iterator end() {
-        return non_const_iterator(m_data_, m_size_);
-    }
+    non_const_iterator end() { return non_const_iterator(m_data_, m_size_); }
 
-    const_iterator begin() const {
-        return const_iterator(m_data_, 0);
-    }
+    const_iterator begin() const { return const_iterator(m_data_, 0); }
 
-    const_iterator end() const {
-        return const_iterator(m_data_, m_size_);
-    }
+    const_iterator end() const { return const_iterator(m_data_, m_size_); }
 
-    const_iterator cbegin() const {
-        return begin();
-    }
+    const_iterator cbegin() const { return begin(); }
 
-    const_iterator cend() const {
-        return end();
-    }
+    const_iterator cend() const { return end(); }
 };
 
 template <typename T>

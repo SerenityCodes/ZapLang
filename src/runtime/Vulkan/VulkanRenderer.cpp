@@ -2,7 +2,7 @@
 
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
-#include "Containers/DynArray.h"
+#include "../Containers/DynArray.h"
 
 #define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
@@ -56,7 +56,7 @@ VkPhysicalDevice pick_physical_device(Arena& temp_arena, VkSurfaceKHR surface, V
         }
     }
     // Not supposed to make it here
-    ENGINE_LOG_ERROR("Failed to find suitable GPU!")
+    ZAP_LOG_ERROR("Failed to find suitable GPU!")
     assert(false);
     return VK_NULL_HANDLE;
 }
@@ -258,7 +258,7 @@ VulkanRenderer::~VulkanRenderer() {
 
 VkCommandBuffer VulkanRenderer::begin_frame(Arena& temp_arena) {
 #ifdef DEBUG
-    ENGINE_ASSERT(!m_is_frame_in_flight_, "Frame cannot be started when frame is in progress. Frame {} is to blame", m_current_frame_)
+    ZAP_ASSERT(!m_is_frame_in_flight_, "Frame cannot be started when frame is in progress. Frame {} is to blame", m_current_frame_)
 #endif
     vkWaitForFences(m_logical_device_, 1, &m_in_flight_fences_[m_current_frame_], VK_TRUE, UINT64_MAX);
     VkResult acquire_res = vkAcquireNextImageKHR(m_logical_device_, *m_swap_chain_, UINT64_MAX, m_image_available_semaphores_[m_current_frame_], VK_NULL_HANDLE, &m_image_index_);
@@ -267,7 +267,7 @@ VkCommandBuffer VulkanRenderer::begin_frame(Arena& temp_arena) {
             recreate_swap_chain(temp_arena);
             return nullptr;
         }
-        ENGINE_ASSERT(false, "Failed to acquire image from swap chain")
+        ZAP_ASSERT(false, "Failed to acquire image from swap chain")
     }
 #ifdef DEBUG
     m_is_frame_in_flight_ = true;
@@ -292,7 +292,7 @@ VkCommandBuffer VulkanRenderer::begin_frame(Arena& temp_arena) {
 
 void VulkanRenderer::end_frame(Arena& temp_arena) {
 #ifdef DEBUG
-    ENGINE_ASSERT(m_is_frame_in_flight_, "There is no frame to end. Frame {} is to blame", m_current_frame_)
+    ZAP_ASSERT(m_is_frame_in_flight_, "There is no frame to end. Frame {} is to blame", m_current_frame_)
 #endif
     // Render ImGUI as a seperate render pass
     VkCommandBuffer current_cmd_buffer = m_primary_command_buffers_[m_current_frame_];
@@ -335,7 +335,7 @@ void VulkanRenderer::end_frame(Arena& temp_arena) {
             m_window_.toggle_resized();
             recreate_swap_chain(temp_arena);
         } else {
-            ENGINE_ASSERT(false, "Failed to present swap chain")   
+            ZAP_ASSERT(false, "Failed to present swap chain")   
         }
     }
 #ifdef DEBUG
@@ -349,7 +349,7 @@ void VulkanRenderer::begin_render_pass(VkCommandBuffer command_buffer) {
     render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     render_pass_info.renderPass = m_swap_chain_->get_current_render_pass();
     render_pass_info.framebuffer = m_swap_chain_->get_frame_buffer(m_image_index_);
-    ENGINE_ASSERT(render_pass_info.framebuffer != VK_NULL_HANDLE, "Framebuffer is invalid!")
+    ZAP_ASSERT(render_pass_info.framebuffer != VK_NULL_HANDLE, "Framebuffer is invalid!")
     render_pass_info.renderArea = {{0, 0}, m_swap_chain_->get_swap_chain_extent()};
 
     VkClearValue clear_value = {{{0.1f, 0.1f, 0.1f, 1.0}}};

@@ -1,9 +1,9 @@
 #pragma once
 
+#include "../Containers/ArrayRef.h"
+#include "../Containers/String.h"
+#include "../Memory/Arena.h"
 #include "../Vendor/flecs/flecs.h"
-#include "Containers/ArrayRef.h"
-#include "Containers/String.h"
-#include "Memory/Arena.h"
 #include "Vulkan/VulkanRenderer.h"
 #include "Vulkan/Wrappers/PipelineWrapper.h"
 

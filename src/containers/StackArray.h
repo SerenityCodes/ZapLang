@@ -7,14 +7,15 @@ template <typename T, size_t N>
 class StackArray {
     std::array<T, N> m_array_;
     size_t m_size_;
-public:
-    StackArray();
-    ~StackArray() = default;
 
-    StackArray(const StackArray& other) = delete;
+   public:
+    StackArray();
+    ~StackArray()                                  = default;
+
+    StackArray(const StackArray& other)            = delete;
     StackArray& operator=(const StackArray& other) = delete;
-    StackArray(StackArray&& other) = delete;
-    StackArray& operator=(StackArray&& other) = delete;
+    StackArray(StackArray&& other)                 = delete;
+    StackArray& operator=(StackArray&& other)      = delete;
     [[nodiscard]] size_t get_current_size() const;
 
     void push(T elem);
@@ -24,7 +25,7 @@ public:
 };
 
 template <typename T, size_t N>
-StackArray<T, N>::StackArray() : m_array_(), m_size_(0) { }
+StackArray<T, N>::StackArray() : m_array_(), m_size_(0) {}
 
 template <typename T, size_t N>
 size_t StackArray<T, N>::get_current_size() const {
@@ -51,8 +52,4 @@ void StackArray<T, N>::clear() {
     m_size_ = 0;
 }
 
-}
-
-
-
-
+}  // namespace containers

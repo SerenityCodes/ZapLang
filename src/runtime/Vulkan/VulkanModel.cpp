@@ -3,7 +3,7 @@
 #include <array>
 #include <fstream>
 
-#include "Memory/STLArenaAllocator.h"
+#include "../Memory/STLArenaAllocator.h"
 #include <filesystem>
 #include <assimp/Importer.hpp>
 
@@ -123,7 +123,7 @@ void VulkanModel::VertexIndexInfo::load_model(Arena& temp_arena, const char* bas
         Assimp::Importer importer;
 
         const aiScene* scene = importer.ReadFile(obj_path.c_str(), import_flags);
-        ENGINE_ASSERT(scene, "Failed to load model", 10, 20, 30)
+        ZAP_ASSERT(scene, "Failed to load model", 10, 20, 30)
         vertices.clear();
         indices.clear();
     
