@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-#include "runtime/Logging/Logger.h"
+#include "logger/Logger.h"
 
 using byte = uint8_t;
 using u8   = uint8_t;

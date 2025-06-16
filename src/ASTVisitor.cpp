@@ -11,7 +11,6 @@
 
 std::any ASTVisitor::visitProgram(zapParser::ProgramContext* ctx) {
     ast::ZapProgram program{.class_symbol_table = {}, .declarations = {}};
-    std::cout << "Visiting program!\n";
     for (zapParser::DeclarationContext* dec : ctx->declaration()) {
         ast::ZapDecl result =
             std::any_cast<ast::ZapDecl>(visitDeclaration(dec));
@@ -21,7 +20,6 @@ std::any ASTVisitor::visitProgram(zapParser::ProgramContext* ctx) {
 }
 
 std::any ASTVisitor::visitFunctionDecl(zapParser::FunctionDeclContext* ctx) {
-    std::cout << "Visiting function\n";
     std::vector<ast::ZapStatement> function_body =
         std::any_cast<std::vector<ast::ZapStatement>>(visitBlock(ctx->block()));
     return ast::ZapFunction{

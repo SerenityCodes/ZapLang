@@ -1,4 +1,4 @@
-﻿#include "Memory/Allocators/LinearAllocator.h"
+﻿#include "memory/Allocators/LinearAllocator.h"
 
 allocators::LinearAllocator::LinearAllocator(void* start, size_t size) : m_start_(static_cast<uint64_t*>(start)), m_size_(size) { }
 

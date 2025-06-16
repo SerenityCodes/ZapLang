@@ -16,18 +16,16 @@ file(GLOB_RECURSE GENERATED_SOURCES
 
 # Gather runtime sources (excluding Vulkan, Engine, and Systems due to external dependencies)
 file(GLOB RUNTIME_CORE_SOURCES
-    src/Memory/*.cpp
-    src/Memory/Allocators/*.cpp
+    src/memory/*.cpp
+    src/memory/Allocators/*.cpp
     src/runtime/Logging/*.cpp
-    src/Containers/*.cpp
+    src/containers/*.cpp
 )
 
 file(GLOB RUNTIME_CORE_HEADERS
-    src/Memory/*.h
-    src/Memory/Allocators/*.h
-    src/runtime/Logging/*.h
-    src/Containers/*.h
-    src/common.h
+    src/memory/*.h
+    src/memory/Allocators/*.h
+    src/containers/*.h
 )
 
 # Gather vendor sources
@@ -41,6 +39,9 @@ add_executable(zapc
   src/main.cpp
   src/ASTVisitor.h
   src/ASTVisitor.cpp
+  src/common.h
+  src/logger/Logger.cpp
+  src/logger/Logger.h
   ${GENERATED_SOURCES}
   ${ANTLR_SOURCES}
   ${RUNTIME_CORE_SOURCES}

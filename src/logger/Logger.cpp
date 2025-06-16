@@ -2,8 +2,6 @@
 #include <memory>
 #include "spdlog/sinks/stdout_color_sinks.h"
 
-namespace engine {
-
 std::shared_ptr<spdlog::logger> Logger::m_core_logger_{nullptr};
 std::shared_ptr<spdlog::logger> Logger::m_client_logger_{nullptr};
 
@@ -27,6 +25,4 @@ std::shared_ptr<spdlog::logger> Logger::core_logger() {
 
 std::shared_ptr<spdlog::logger> Logger::client_logger() {
     return m_client_logger_;
-}
-
 }

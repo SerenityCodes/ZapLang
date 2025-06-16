@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "../Memory/Arena.h"
+#include "../memory/Arena.h"
 #include "common.h"
 
 class String {

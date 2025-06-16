@@ -3,7 +3,7 @@
 #include <cctype>
 #include <cstring>
 
-#include "../Memory/Arena.h"
+#include "../memory/Arena.h"
 
 String::String(Arena& arena, size_t length)
     : m_length_(length), m_str_(static_cast<byte*>(arena.push(m_length_))) {}

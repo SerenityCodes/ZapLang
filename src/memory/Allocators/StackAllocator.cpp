@@ -1,9 +1,8 @@
 ﻿#include "StackAllocator.h"
 
 #include <cstdlib>
-#include <iostream>
 
-#include "runtime/Logging/Logger.h"
+#include "logger//Logger.h"
 
 namespace allocators {
 
