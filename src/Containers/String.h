@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "../Memory/Arena.h"
-#include "runtime/common.h"
+#include "common.h"
 
 class String {
     size_t m_length_;

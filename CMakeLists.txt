@@ -27,7 +27,7 @@ file(GLOB RUNTIME_CORE_HEADERS
     src/Memory/Allocators/*.h
     src/runtime/Logging/*.h
     src/Containers/*.h
-    src/runtime/common.h
+    src/common.h
 )
 
 # Gather vendor sources

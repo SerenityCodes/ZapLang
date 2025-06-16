@@ -54,7 +54,7 @@ VulkanTexture::VulkanTexture(VulkanRenderer& renderer, const char* file_path) : 
     stbi_uc* pixels = stbi_load(file_path, &m_width_, &m_height_, &m_channels_, STBI_rgb_alpha);
     VkDeviceSize size = m_width_ * m_height_;
 
-    ENGINE_ASSERT(pixels, "Failed to load texture!")
+    ZAP_ASSERT(pixels, "Failed to load texture!")
     
     m_buffer_ = DeviceBufferWrapper{renderer, sizeof(int), static_cast<uint32_t>(size), VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT};
     DeviceBufferWrapper staging_buffer{renderer,

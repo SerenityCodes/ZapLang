@@ -40,7 +40,7 @@ StealthEngine::StealthEngine()
       m_pipeline_(m_temp_arena_, m_renderer_) {}
 
 void StealthEngine::run() {
-    ENGINE_LOG_INFO("Engine starting...")
+    ZAP_LOG_INFO("Engine starting...")
     m_world_.add<VulkanRenderInfo>();
     m_world_.set<components::WindowComponent>({m_renderer_.raw_glfw_window()});
     systems::setup_render_system(m_world_);

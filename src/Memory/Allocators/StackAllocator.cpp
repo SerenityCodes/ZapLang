@@ -52,7 +52,7 @@ void* StackAllocator::allocate(size_t amount, size_t alignment) {
 
 void StackAllocator::free_bytes(size_t bytes_to_free) {
     if (bytes_to_free > m_size_) {
-        ENGINE_LOG_ERROR("Cannot free {} bytes from stack allocator. Bigger than the actual size. Wiping stack allocator.", bytes_to_free)
+        ZAP_LOG_ERROR("Cannot free {} bytes from stack allocator. Bigger than the actual size. Wiping stack allocator.", bytes_to_free)
         m_size_ = 0;
     } else {
         m_size_ -= bytes_to_free;
