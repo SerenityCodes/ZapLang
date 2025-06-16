@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 #include "ANTLRInputStream.h"
-#include "ASTVisitor.h"
+#include "ast/ASTVisitor.h"
 #include "CommonTokenStream.h"
 #include "antlr/zapLexer.h"
 #include "antlr/zapParser.h"

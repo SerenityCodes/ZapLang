@@ -37,8 +37,6 @@ file(GLOB_RECURSE VENDOR_SOURCES
 
 add_executable(zapc
   src/main.cpp
-  src/ASTVisitor.h
-  src/ASTVisitor.cpp
   src/common.h
   src/logger/Logger.cpp
   src/logger/Logger.h
