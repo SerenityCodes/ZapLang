@@ -14,7 +14,6 @@ void ZapPrettyPrinter::printIndent() {
 }
 
 void ZapPrettyPrinter::print(const ZapProgram& program) {
-    std::cout << "Declarations size: " << program.declarations.size() << '\n';
     for (const auto& decl : program.declarations) {
         print(decl);
         out << "\n";
