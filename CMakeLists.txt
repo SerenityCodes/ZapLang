@@ -60,7 +60,6 @@ target_include_directories(zapc PRIVATE
   vendor/antlr-runtime/src/tree/pattern
   vendor/antlr-runtime/src/tree/xpath
   src
-  src/runtime
   vendor/spdlog/include
   vendor/vma/include
   vendor/stb_image

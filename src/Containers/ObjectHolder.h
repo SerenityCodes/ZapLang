@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <memory>
 
-#include "common.h"
+#include "runtime/common.h"
 
 template <typename T>
 class ObjectHolder {
