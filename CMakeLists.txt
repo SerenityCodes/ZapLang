@@ -4,6 +4,7 @@ project(ZapLang)
 # Gather ANTLR sources
 file(GLOB_RECURSE ANTLR_SOURCES
   vendor/antlr-runtime/src/*.cpp
+  vendor/antlr-runtime/src/*.h
 )
 
 file(GLOB_RECURSE GENERATED_SOURCES
@@ -13,17 +14,12 @@ file(GLOB_RECURSE GENERATED_SOURCES
     src/ast/*.cpp
 )
 
-file(GLOB_RECURSE ANTLR_HEADERS
-  vendor/antlr-runtime/src/*.h
-)
-
 add_executable(zapc
   src/main.cpp
   src/ASTVisitor.h
   src/ASTVisitor.cpp
   ${GENERATED_SOURCES}
-  ${ANTLR_SOURCES}
-  ${ANTLR_HEADERS}  # not necessary but helps IDEs
+  ${RUNTIME_SOURCES}
 )
 
 # Add ANTLR include paths
