@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <cstddef>
 #include "Memory/Arena.h"
 
 namespace engine::allocators {

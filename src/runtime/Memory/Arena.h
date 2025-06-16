@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <cstddef>
 #include "Allocators/StackAllocator.h"
 
 class Arena {
