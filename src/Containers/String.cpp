@@ -3,25 +3,25 @@
 #include <cctype>
 #include <cstring>
 
-#include "Memory/Arena.h"
+#include "../Memory/Arena.h"
 
-String::String(Arena& arena, size_t length) : m_length_(length), m_str_(static_cast<byte*>(arena.push(m_length_))) {
-    
-}
+String::String(Arena& arena, size_t length)
+    : m_length_(length), m_str_(static_cast<byte*>(arena.push(m_length_))) {}
 
-String::String(Arena& arena, const char* c_str) : m_length_(strlen(c_str)), m_str_(static_cast<byte*>(arena.push(m_length_ - 1))) {
+String::String(Arena& arena, const char* c_str)
+    : m_length_(strlen(c_str)),
+      m_str_(static_cast<byte*>(arena.push(m_length_ - 1))) {
     // Copy all but null byte. Won't need it.
     memcpy(m_str_, c_str, m_length_ - 1);
 }
 
-String::String(String&& other) noexcept : m_length_(other.m_length_), m_str_(other.m_str_) {
-    
-}
+String::String(String&& other) noexcept
+    : m_length_(other.m_length_), m_str_(other.m_str_) {}
 
 String& String::operator=(String&& other) noexcept {
     if (this != &other) {
         m_length_ = other.m_length_;
-        m_str_ = other.m_str_;
+        m_str_    = other.m_str_;
     }
     return *this;
 }
@@ -32,7 +32,7 @@ size_t String::length() const {
 
 const char* String::c_str(Arena& arena) const {
     const size_t new_length = m_length_ + 1;
-    char* str = static_cast<char*>(arena.push(new_length));
+    char* str               = static_cast<char*>(arena.push(new_length));
     memcpy(str, m_str_, m_length_);
     str[m_length_] = '\0';
     return str;

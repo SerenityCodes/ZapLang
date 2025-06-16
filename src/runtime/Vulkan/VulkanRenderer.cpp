@@ -2,7 +2,7 @@
 
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
-#include "Containers/DynArray.h"
+#include "../Containers/DynArray.h"
 
 #define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"

@@ -16,17 +16,17 @@ file(GLOB_RECURSE GENERATED_SOURCES
 
 # Gather runtime sources (excluding Vulkan, Engine, and Systems due to external dependencies)
 file(GLOB RUNTIME_CORE_SOURCES
-    src/runtime/Memory/*.cpp
-    src/runtime/Memory/Allocators/*.cpp
+    src/Memory/*.cpp
+    src/Memory/Allocators/*.cpp
     src/runtime/Logging/*.cpp
-    src/runtime/Containers/*.cpp
+    src/Containers/*.cpp
 )
 
 file(GLOB RUNTIME_CORE_HEADERS
-    src/runtime/Memory/*.h
-    src/runtime/Memory/Allocators/*.h
+    src/Memory/*.h
+    src/Memory/Allocators/*.h
     src/runtime/Logging/*.h
-    src/runtime/Containers/*.h
+    src/Containers/*.h
     src/runtime/common.h
 )
 
@@ -59,6 +59,7 @@ target_include_directories(zapc PRIVATE
   vendor/antlr-runtime/src/tree
   vendor/antlr-runtime/src/tree/pattern
   vendor/antlr-runtime/src/tree/xpath
+  src
   src/runtime
   vendor/spdlog/include
   vendor/vma/include

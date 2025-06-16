@@ -4,7 +4,7 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 
-#include "Containers/DynArray.h"
+#include "../Containers/DynArray.h"
 
 #include "common.h"
 #include "Wrappers/DeviceBufferWrapper.h"

@@ -3,7 +3,7 @@
 #include <array>
 #include <fstream>
 
-#include "Memory/STLArenaAllocator.h"
+#include "../Memory/STLArenaAllocator.h"
 #include <filesystem>
 #include <assimp/Importer.hpp>
 

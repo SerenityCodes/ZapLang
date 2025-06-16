@@ -4,7 +4,8 @@
 
 class Arena {
     allocators::StackAllocator m_stack_;
-public:
+
+   public:
     Arena() = default;
     Arena(size_t size);
     ~Arena() = default;
