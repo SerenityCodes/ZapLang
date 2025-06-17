@@ -116,8 +116,8 @@ bool TypeChecker::check_statement(const ast::ZapStatement& stmt) {
             return check_block_statement(
                 std::get<ast::ZapBlockStatement>(stmt.value));
         case ast::ZapStatementKind::Defer:
-            // For now, just validate the expression if present
-            return true;
+            return check_defer_statement(
+                std::get<ast::ZapDeferStatement>(stmt.value));
         default:
             report_error("Unknown statement kind");
             return false;
@@ -255,6 +255,26 @@ bool TypeChecker::check_block_statement(const ast::ZapBlockStatement& stmt) {
         }
     }
     return success;
+}
+
+bool TypeChecker::check_defer_statement(const ast::ZapDeferStatement& stmt) {
+    if (stmt.is_body) {
+        // Defer has a body of statements - check each statement
+        bool success = true;
+        for (const auto& defer_stmt : stmt.body) {
+            if (!check_statement(defer_stmt)) {
+                success = false;
+            }
+        }
+        return success;
+    } else {
+        // Defer has an expression - validate the expression type
+        if (stmt.expr) {
+            infer_expression_type(*stmt.expr);
+            return true;
+        }
+        return true;
+    }
 }
 
 ast::ZapType TypeChecker::infer_expression_type(

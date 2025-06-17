@@ -44,6 +44,7 @@ class TypeChecker {
     bool check_while_statement(const ast::ZapWhileStatement& stmt);
     bool check_for_statement(const ast::ZapForStatement& stmt);
     bool check_return_statement(const ast::ZapReturnStatement& stmt);
+    bool check_defer_statement(const ast::ZapDeferStatement& stmt);
     bool check_block_statement(const ast::ZapBlockStatement& stmt);
 
     // Expression type checking and inference
