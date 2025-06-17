@@ -15,6 +15,7 @@ using LiteralInt    = int;
 using LiteralFloat  = float;
 using LiteralDouble = double;
 using LiteralString = std::string;
+using LiteralBool   = bool;
 
 enum ZapTypeKind {
     U8,
@@ -72,7 +73,9 @@ enum BinaryOp {
 };
 
 struct ZapLiteral {
-    std::variant<LiteralInt, LiteralFloat, LiteralDouble, LiteralString> value;
+    std::variant<LiteralInt, LiteralFloat, LiteralDouble, LiteralString,
+                 LiteralBool>
+        value;
 };
 
 struct ZapBinaryExpression {

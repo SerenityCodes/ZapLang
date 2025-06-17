@@ -11,6 +11,8 @@
 #include "antlr4-runtime.h"
 #include "ast/ast.h"
 #include "ast/ast_printer.h"
+#include "logger/Logger.h"
+#include "typechecker/TypeChecker.h"
 
 std::string read_file(const char *file_name) {
     std::ifstream file_stream(file_name, std::ios::in | std::ios::binary);
@@ -25,6 +27,10 @@ int main(int argc, const char *argv[]) {
         std::cout << "Usage: zapc <file>\n";
         return 1;
     }
+
+    // Initialize logger
+    Logger::Init();
+
     antlr4::ANTLRInputStream input(read_file(argv[1]));
 
     zapLexer lexer(&input);
@@ -40,6 +46,16 @@ int main(int argc, const char *argv[]) {
     ASTVisitor visitor;
     ast::ZapProgram program =
         std::any_cast<ast::ZapProgram>(visitor.visit(program_ctx));
+
+    // Type checking step
+    typechecker::TypeChecker type_checker;
+    if (!type_checker.check(program)) {
+        ZAP_LOG_ERROR("Type checking failed");
+        return 1;
+    }
+
+    ZAP_LOG_INFO("Type checking passed");
+
     ast::ZapPrettyPrinter printer{std::cout};
     printer.print(program);
 

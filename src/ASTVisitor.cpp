@@ -424,7 +424,7 @@ std::any ASTVisitor::visitPrimary(zapParser::PrimaryContext* ctx) {
         return std::make_shared<ast::ZapExpression>(ast::ZapExpression{
             .kind  = ast::ZapExpressionKind::Literal,
             .value = ast::ZapLiteral{
-                .value = ctx->BOOL()->getText() == "true" ? 0 : 1}});
+                .value = ast::LiteralBool(ctx->BOOL()->getText() == "true")}});
     }
     if (ctx->STRING()) {
         return std::make_shared<ast::ZapExpression>(ast::ZapExpression{
@@ -538,6 +538,8 @@ ast::ZapTypeKind from_string(const std::string& type) {
         return ast::ZapTypeKind::I32;
     } else if (type == "i64") {
         return ast::ZapTypeKind::I64;
+    } else if (type == "bool") {
+        return ast::ZapTypeKind::BOOL;
     } else if (type == "str") {
         return ast::ZapTypeKind::STRING;
     }
