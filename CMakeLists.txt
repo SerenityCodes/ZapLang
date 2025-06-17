@@ -42,6 +42,8 @@ add_executable(zapc
   src/common.h
   src/logger/Logger.cpp
   src/logger/Logger.h
+  src/typechecker/TypeChecker.h
+  src/typechecker/TypeChecker.cpp
   ${GENERATED_SOURCES}
   ${ANTLR_SOURCES}
   ${RUNTIME_CORE_SOURCES}
