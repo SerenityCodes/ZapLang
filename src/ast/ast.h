@@ -37,8 +37,51 @@ enum ZapTypeKind {
 
 struct ZapType {
     ZapTypeKind kind;
-    std::shared_ptr<ZapIdentifier> custom_name;  // for CUSTOM
-    std::shared_ptr<ZapType> inner;              // for ARRAY or REF types
+    ZapIdentifier custom_name;       // for CUSTOM
+    std::shared_ptr<ZapType> inner;  // for ARRAY or REF types
+
+    std::string to_string() const {
+        switch (kind) {
+            case U8:
+                return "u8";
+            case U16:
+                return "u16";
+            case U32:
+                return "u32";
+            case U64:
+                return "u64";
+            case I16:
+                return "i16";
+            case I32:
+                return "i32";
+            case I64:
+                return "i64";
+            case F32:
+                return "f32";
+            case F64:
+                return "f64";
+            case BOOL:
+                return "bool";
+            case STRING:
+                return "string";
+            case VOID:
+                return "void";
+            case CUSTOM:
+                return custom_name;
+                break;
+            case ARRAY:
+                if (inner)
+                    return inner->to_string() + "[]";
+                break;
+            case REF:
+                if (inner)
+                    return "ref " + inner->to_string();
+                break;
+            default:
+                return "unknown";
+        }
+        return "invalid_type";
+    }
 };
 
 // === Expressionessions ===

@@ -106,7 +106,7 @@ void ZapPrettyPrinter::print(const ZapFunction& func) {
 void ZapPrettyPrinter::print(const ZapType& type) {
     switch (type.kind) {
         case CUSTOM:
-            out << *type.custom_name;
+            out << type.custom_name;
             break;
         case ARRAY:
             print(*type.inner);

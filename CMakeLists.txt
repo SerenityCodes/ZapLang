@@ -12,6 +12,8 @@ file(GLOB_RECURSE GENERATED_SOURCES
     src/antlr/*.h
     src/ast/*.h
     src/ast/*.cpp
+    src/ir/*.cpp
+    src/ir/*.h
 )
 
 # Gather runtime sources (excluding Vulkan, Engine, and Systems due to external dependencies)
@@ -33,12 +35,11 @@ file(GLOB_RECURSE VENDOR_SOURCES
     vendor/spdlog/src/*.cpp
     vendor/stb_image/*.cpp
     vendor/flecs/*.c
+    vendor/doctest/doctest.h
 )
 
 add_executable(zapc
   src/main.cpp
-  src/ASTVisitor.h
-  src/ASTVisitor.cpp
   src/common.h
   src/logger/Logger.cpp
   src/logger/Logger.h
@@ -67,6 +68,7 @@ target_include_directories(zapc PRIVATE
   vendor/vma/include
   vendor/stb_image
   vendor/flecs
+  vendor/doctest
 )
 
 # Add compile definitions

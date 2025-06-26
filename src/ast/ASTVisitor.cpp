@@ -404,9 +404,9 @@ std::any ASTVisitor::visitPrimary(zapParser::PrimaryContext* ctx) {
         return visitExpression(ctx->expression());
     }
     if (ctx->IDENTIFIER()) {
-        return std::make_shared<ast::ZapExpression>(ast::ZapExpression{
-            .kind  = ast::ZapExpressionKind::Identifier,
-            .value = ast::ZapIdentifier{ctx->IDENTIFIER()->getText()}});
+        return std::make_shared<ast::ZapExpression>(
+            ast::ZapExpression{.kind  = ast::ZapExpressionKind::Identifier,
+                               .value = ctx->IDENTIFIER()->getText()});
     }
     if (ctx->INT()) {
         return std::make_shared<ast::ZapExpression>(ast::ZapExpression{
@@ -493,7 +493,7 @@ std::any ASTVisitor::visitParameter(zapParser::ParameterContext* ctx) {
     if (ctx->REF()) {
         ast::ZapType ref_type{
             .kind        = ast::ZapTypeKind::REF,
-            .custom_name = nullptr,
+            .custom_name = "",
             .inner       = std::make_shared<ast::ZapType>(base_type)};
         return ast::ZapParam{.name = ctx->IDENTIFIER()->getText(),
                              .type = ref_type};
@@ -573,19 +573,17 @@ ast::ZapTypeKind get_type_kind(zapParser::TypeContext* ctx) {
 
 std::any ASTVisitor::visitType(zapParser::TypeContext* ctx) {
     ast::ZapTypeKind kind = get_type_kind(ctx);
-    ast::ZapType type{.kind = kind, .custom_name = nullptr, .inner = nullptr};
+    ast::ZapType type{.kind = kind, .custom_name = "", .inner = nullptr};
 
     if (kind == ast::ZapTypeKind::CUSTOM) {
-        type.custom_name =
-            std::make_shared<ast::ZapIdentifier>(ctx->IDENTIFIER()->getText());
+        type.custom_name = ctx->IDENTIFIER()->getText();
     } else if (kind == ast::ZapTypeKind::ARRAY) {
         // For arrays, create inner type without the array brackets
         // This is a simplified implementation - we'd need to parse the inner type properly
         type.inner       = std::make_shared<ast::ZapType>();
         type.inner->kind = from_string(ctx->IDENTIFIER()->getText());
         if (type.inner->kind == ast::ZapTypeKind::CUSTOM) {
-            type.inner->custom_name = std::make_shared<ast::ZapIdentifier>(
-                ctx->IDENTIFIER()->getText());
+            type.inner->custom_name = ctx->IDENTIFIER()->getText();
         }
     }
 

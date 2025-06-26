@@ -4,13 +4,14 @@
 #include <iostream>
 #include <string>
 #include "ANTLRInputStream.h"
-#include "ASTVisitor.h"
 #include "CommonTokenStream.h"
 #include "antlr/zapLexer.h"
 #include "antlr/zapParser.h"
 #include "antlr4-runtime.h"
+#include "ast/ASTVisitor.h"
 #include "ast/ast.h"
 #include "ast/ast_printer.h"
+#include "ir/ir.h"
 #include "logger/Logger.h"
 #include "typechecker/TypeChecker.h"
 
@@ -43,6 +44,8 @@ int main(int argc, const char *argv[]) {
         return 1;
     }
 
+    std::cout << "AST ----- \n";
+
     ASTVisitor visitor;
     ast::ZapProgram program =
         std::any_cast<ast::ZapProgram>(visitor.visit(program_ctx));
@@ -59,5 +62,11 @@ int main(int argc, const char *argv[]) {
     ast::ZapPrettyPrinter printer{std::cout};
     printer.print(program);
 
+    std::cout << "IR ----- \n";
+
+    ir::IRVisitor ir_visitor;
+    ir::IRProgram ir_program = ir_visitor.generate(program);
+    ir::IRPrettyPrinter ir_printer;
+    ir_printer.print(ir_program);
     return 0;
 }
