@@ -1,5 +1,6 @@
 #include "TypeChecker.h"
 #include <variant>
+#include "ast/ast.h"
 #include "logger/Logger.h"
 
 namespace typechecker {
@@ -384,6 +385,14 @@ ast::ZapType TypeChecker::infer_binary_expression_type(
         }
 
         return bool_type;
+    }
+
+    if (expr.op == ast::BinaryOp::ASSIGNMENT) {
+        if (!types_compatible(left_type, right_type)) {
+            report_error("Assignment type does not match");
+        }
+
+        return left_type;
     }
 
     report_error("Unknown binary operation");
