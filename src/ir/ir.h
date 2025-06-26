@@ -77,13 +77,12 @@ struct IRProgram {
 };
 
 class IRVisitor {
-    private:
+   private:
     u32 unique_num = 0;
     std::unordered_map<std::string, u32> string_table;
 
-    std::string get_temp() {
-        return "tmp_" + std::to_string(unique_num++);
-    }
+    std::string get_temp() { return "tmp_" + std::to_string(unique_num++); }
+
    public:
     // Generate the full IR program from an AST program
     IRProgram generate(const ast::ZapProgram& ast_program);
@@ -102,7 +101,8 @@ class IRVisitor {
                   std::vector<IRBlock>& blocks);
 
     // Generate IR statements for an expression (output parameter)
-    void generate(const ast::ZapExpression& expression, std::vector<IRStatement>& statements);
+    void generate(const ast::ZapExpression& expression,
+                  std::vector<IRStatement>& statements);
 
     // Generate IR statements for let, assign, return, defer (output parameter)
     void generate(const ast::ZapLetStatement& let_statement,
@@ -111,8 +111,10 @@ class IRVisitor {
                   std::vector<IRStatement>& statements);
     void generate(const ast::ZapIfStatement& if_statement,
                   std::vector<IRBlock>& blocks);
-    IRLoop generate(const ast::ZapForStatement& for_statement, std::vector<IRBlock>& blocks);
-    IRLoop generate(const ast::ZapWhileStatement& while_statement, std::vector<IRBlock>& blocks);
+    IRLoop generate(const ast::ZapForStatement& for_statement,
+                    std::vector<IRBlock>& blocks);
+    IRLoop generate(const ast::ZapWhileStatement& while_statement,
+                    std::vector<IRBlock>& blocks);
     void generate(const ast::ZapReturnStatement& ret_statement,
                   std::vector<IRStatement>& statements);
     void generate(const ast::ZapDeferStatement& defer_statement,
@@ -120,7 +122,7 @@ class IRVisitor {
 };
 
 class IRPrettyPrinter {
-public:
+   public:
     void print(const IRProgram& program) const;
     void print(const IRFunction& function, int indent = 0) const;
     void print(const IRBlock& block, int indent = 0) const;

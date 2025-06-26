@@ -36,8 +36,8 @@ enum ZapTypeKind {
 
 struct ZapType {
     ZapTypeKind kind;
-    ZapIdentifier custom_name;  // for CUSTOM
-    std::shared_ptr<ZapType> inner;              // for ARRAY or REF types
+    ZapIdentifier custom_name;       // for CUSTOM
+    std::shared_ptr<ZapType> inner;  // for ARRAY or REF types
 
     std::string to_string() const {
         switch (kind) {
@@ -66,7 +66,7 @@ struct ZapType {
             case VOID:
                 return "void";
             case CUSTOM:
-                    return custom_name;
+                return custom_name;
                 break;
             case ARRAY:
                 if (inner)

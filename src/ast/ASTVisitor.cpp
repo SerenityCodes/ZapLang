@@ -404,9 +404,9 @@ std::any ASTVisitor::visitPrimary(zapParser::PrimaryContext* ctx) {
         return visitExpression(ctx->expression());
     }
     if (ctx->IDENTIFIER()) {
-        return std::make_shared<ast::ZapExpression>(ast::ZapExpression{
-            .kind  = ast::ZapExpressionKind::Identifier,
-            .value = ctx->IDENTIFIER()->getText()});
+        return std::make_shared<ast::ZapExpression>(
+            ast::ZapExpression{.kind  = ast::ZapExpressionKind::Identifier,
+                               .value = ctx->IDENTIFIER()->getText()});
     }
     if (ctx->INT()) {
         return std::make_shared<ast::ZapExpression>(ast::ZapExpression{
