@@ -484,18 +484,14 @@ bool TypeChecker::resolve_custom_type(const std::string& type_name,
     // Check if it's a struct
     auto struct_it = global_symbols_->struct_map.find(type_name);
     if (struct_it != global_symbols_->struct_map.end()) {
-        resolved_type = {ast::ZapTypeKind::CUSTOM,
-                         type_name,
-                         nullptr};
+        resolved_type = {ast::ZapTypeKind::CUSTOM, type_name, nullptr};
         return true;
     }
 
     // Check if it's a component
     auto comp_it = global_symbols_->component_map.find(type_name);
     if (comp_it != global_symbols_->component_map.end()) {
-        resolved_type = {ast::ZapTypeKind::CUSTOM,
-                         type_name,
-                         nullptr};
+        resolved_type = {ast::ZapTypeKind::CUSTOM, type_name, nullptr};
         return true;
     }
 

@@ -172,13 +172,12 @@ void IRVisitor::generate(const ast::ZapExpression& expression,
                         IRStatement{str_var, OpCode::MOV, {str_val}});
                     break;
                 }
-                case 4: { // bool
-                    statements.push_back(
-                        IRStatement{var_name,
-                                    OpCode::MOV,
-                                    {std::get<ast::LiteralBool>(literal.value)
-                                         ? "true"
-                                         : "false"}});
+                case 4: {  // bool
+                    statements.push_back(IRStatement{
+                        var_name,
+                        OpCode::MOV,
+                        {std::get<ast::LiteralBool>(literal.value) ? "true"
+                                                                   : "false"}});
                     break;
                 }
                 default:
