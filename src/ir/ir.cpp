@@ -482,6 +482,8 @@ static const char* opcode_to_string(OpCode op) {
             return "JMP";
         case OpCode::RET:
             return "RET";
+        case OpCode::CAST:
+            return "CAST";
         default:
             return "UNKNOWN";
     }
