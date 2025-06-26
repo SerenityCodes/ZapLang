@@ -5,14 +5,17 @@
 
 #include "../memory/Arena.h"
 
+String::String(char* c_str)
+    : m_length_(strlen(c_str)), m_str_(reinterpret_cast<byte*>(c_str)) {}
+
 String::String(Arena& arena, size_t length)
     : m_length_(length), m_str_(static_cast<byte*>(arena.push(m_length_))) {}
 
 String::String(Arena& arena, const char* c_str)
     : m_length_(strlen(c_str)),
-      m_str_(static_cast<byte*>(arena.push(m_length_ - 1))) {
-    // Copy all but null byte. Won't need it.
-    memcpy(m_str_, c_str, m_length_ - 1);
+      m_str_(static_cast<byte*>(arena.push(m_length_))) {
+    // Copy all bytes (we don't store the null terminator in our byte array)
+    memcpy(m_str_, c_str, m_length_);
 }
 
 String::String(String&& other) noexcept
@@ -39,14 +42,14 @@ const char* String::c_str(Arena& arena) const {
 }
 
 String String::substr(Arena& new_str_arena, size_t start, size_t end) const {
-    if (start >= end || end >= m_length_ || start >= m_length_) {
+    if (start >= end || end > m_length_ || start >= m_length_) {
         // static_cast so compiler isn't confused about if 0 is a const char* or a length
         return String{new_str_arena, static_cast<size_t>(0)};
     }
     size_t len = end - start;
     String return_str{new_str_arena, len};
-    for (size_t i = start; i < end; i++) {
-        return_str[i] = m_str_[i];
+    for (size_t i = 0; i < len; i++) {
+        return_str[i] = m_str_[start + i];
     }
     return return_str;
 }
@@ -73,9 +76,8 @@ String String::lower(Arena& new_str_arena) const {
 
 String String::reverse(Arena& new_str_arena) const {
     String return_str{new_str_arena, m_length_};
-    size_t i = 0, j = m_length_ - 1;
-    while (i < j) {
-        return_str[i++] = m_str_[j--];
+    for (size_t i = 0; i < m_length_; i++) {
+        return_str[i] = m_str_[m_length_ - 1 - i];
     }
     return return_str;
 }
@@ -88,7 +90,7 @@ String String::concat(Arena& new_str_arena, const String& str) const {
 }
 
 byte String::bound_check_access(size_t index, int* error_code) {
-    if (index <= 0 || index >= m_length_) {
+    if (index >= m_length_) {
         *error_code = 1;
         return '\0';
     }
@@ -97,7 +99,7 @@ byte String::bound_check_access(size_t index, int* error_code) {
 }
 
 byte String::bound_check_access(size_t index, int* error_code) const {
-    if (index <= 0 || index >= m_length_) {
+    if (index >= m_length_) {
         *error_code = 1;
         return '\0';
     }
