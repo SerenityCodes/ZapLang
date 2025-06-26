@@ -400,10 +400,11 @@ void IRVisitor::generate(const ast::ZapForStatement& for_statement,
     for (const ast::ZapStatement& ast_statement : for_statement.body) {
         generate(ast_statement, body);
     }
+    body.back().statements.push_back(IRStatement{.result = "", .op = OpCode::JMP, .arg_list = {condition_block_name}});
     
     blocks.push_back(condition_block);
     blocks.insert(blocks.end(), body.begin(), body.end());
-    blocks.push_back(IRBlock{.name = condition_block_name, .statements = {}});
+    blocks.push_back(IRBlock{.name = continue_block, .statements = {}});
 }
 
 void IRVisitor::generate(const ast::ZapWhileStatement& while_statement,
