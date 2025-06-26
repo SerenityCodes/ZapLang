@@ -64,8 +64,8 @@ bool TypeChecker::check_struct(const ast::ZapStruct& struct_decl) {
     for (const auto& field : struct_decl.fields) {
         ast::ZapType resolved_type;
         if (field.type.kind == ast::ZapTypeKind::CUSTOM &&
-            !resolve_custom_type(*field.type.custom_name, resolved_type)) {
-            report_error("Unknown type '" + *field.type.custom_name +
+            !resolve_custom_type(field.type.custom_name, resolved_type)) {
+            report_error("Unknown type '" + field.type.custom_name +
                          "' in struct field '" + field.name + "'");
             return false;
         }
@@ -78,8 +78,8 @@ bool TypeChecker::check_component(const ast::ZapComponent& component) {
     for (const auto& field : component.fields) {
         ast::ZapType resolved_type;
         if (field.type.kind == ast::ZapTypeKind::CUSTOM &&
-            !resolve_custom_type(*field.type.custom_name, resolved_type)) {
-            report_error("Unknown type '" + *field.type.custom_name +
+            !resolve_custom_type(field.type.custom_name, resolved_type)) {
+            report_error("Unknown type '" + field.type.custom_name +
                          "' in component field '" + field.name + "'");
             return false;
         }
@@ -158,7 +158,7 @@ bool TypeChecker::check_assign_statement(const ast::ZapAssignStatement& stmt) {
 bool TypeChecker::check_if_statement(const ast::ZapIfStatement& stmt) {
     // Condition must be boolean
     ast::ZapType condition_type = infer_expression_type(*stmt.condition);
-    ast::ZapType bool_type      = {ast::ZapTypeKind::BOOL, nullptr, nullptr};
+    ast::ZapType bool_type      = {ast::ZapTypeKind::BOOL, "", nullptr};
 
     if (!types_compatible(bool_type, condition_type)) {
         report_type_mismatch("If condition", bool_type, condition_type);
@@ -185,7 +185,7 @@ bool TypeChecker::check_if_statement(const ast::ZapIfStatement& stmt) {
 bool TypeChecker::check_while_statement(const ast::ZapWhileStatement& stmt) {
     // Condition must be boolean
     ast::ZapType condition_type = infer_expression_type(*stmt.condition);
-    ast::ZapType bool_type      = {ast::ZapTypeKind::BOOL, nullptr, nullptr};
+    ast::ZapType bool_type      = {ast::ZapTypeKind::BOOL, "", nullptr};
 
     if (!types_compatible(bool_type, condition_type)) {
         report_type_mismatch("While condition", bool_type, condition_type);
@@ -209,7 +209,7 @@ bool TypeChecker::check_for_statement(const ast::ZapForStatement& stmt) {
 
     // Condition must be boolean
     ast::ZapType condition_type = infer_expression_type(*stmt.condition);
-    ast::ZapType bool_type      = {ast::ZapTypeKind::BOOL, nullptr, nullptr};
+    ast::ZapType bool_type      = {ast::ZapTypeKind::BOOL, "", nullptr};
 
     if (!types_compatible(bool_type, condition_type)) {
         report_type_mismatch("For loop condition", bool_type, condition_type);
@@ -289,7 +289,7 @@ ast::ZapType TypeChecker::infer_expression_type(
                 return it->second;
             }
             report_error("Undefined variable '" + id + "'");
-            return {ast::ZapTypeKind::VOID, nullptr, nullptr};
+            return {ast::ZapTypeKind::VOID, "", nullptr};
         }
         case ast::ZapExpressionKind::Binary:
             return infer_binary_expression_type(
@@ -317,17 +317,17 @@ ast::ZapType TypeChecker::infer_literal_type(const ast::ZapLiteral& literal) {
         [](const auto& value) -> ast::ZapType {
             using T = std::decay_t<decltype(value)>;
             if constexpr (std::is_same_v<T, ast::LiteralInt>) {
-                return {ast::ZapTypeKind::I32, nullptr, nullptr};
+                return {ast::ZapTypeKind::I32, "", nullptr};
             } else if constexpr (std::is_same_v<T, ast::LiteralFloat>) {
-                return {ast::ZapTypeKind::F32, nullptr, nullptr};
+                return {ast::ZapTypeKind::F32, "", nullptr};
             } else if constexpr (std::is_same_v<T, ast::LiteralDouble>) {
-                return {ast::ZapTypeKind::F64, nullptr, nullptr};
+                return {ast::ZapTypeKind::F64, "", nullptr};
             } else if constexpr (std::is_same_v<T, ast::LiteralString>) {
-                return {ast::ZapTypeKind::STRING, nullptr, nullptr};
+                return {ast::ZapTypeKind::STRING, "", nullptr};
             } else if constexpr (std::is_same_v<T, ast::LiteralBool>) {
-                return {ast::ZapTypeKind::BOOL, nullptr, nullptr};
+                return {ast::ZapTypeKind::BOOL, "", nullptr};
             }
-            return {ast::ZapTypeKind::VOID, nullptr, nullptr};
+            return {ast::ZapTypeKind::VOID, "", nullptr};
         },
         literal.value);
 }
@@ -344,15 +344,15 @@ ast::ZapType TypeChecker::infer_binary_expression_type(
 
         if (!is_numeric_type(left_type) || !is_numeric_type(right_type)) {
             report_error("Arithmetic operations require numeric types");
-            return {ast::ZapTypeKind::VOID, nullptr, nullptr};
+            return {ast::ZapTypeKind::VOID, "", nullptr};
         }
 
         // Return the "larger" type
         if (is_floating_type(left_type) || is_floating_type(right_type)) {
             return left_type.kind == ast::ZapTypeKind::F64 ||
                            right_type.kind == ast::ZapTypeKind::F64
-                       ? ast::ZapType{ast::ZapTypeKind::F64, nullptr, nullptr}
-                       : ast::ZapType{ast::ZapTypeKind::F32, nullptr, nullptr};
+                       ? ast::ZapType{ast::ZapTypeKind::F64, "", nullptr}
+                       : ast::ZapType{ast::ZapTypeKind::F32, "", nullptr};
         }
 
         // Both are integers, return the larger one
@@ -371,12 +371,12 @@ ast::ZapType TypeChecker::infer_binary_expression_type(
             report_error("Comparison operations require compatible types");
         }
 
-        return {ast::ZapTypeKind::BOOL, nullptr, nullptr};
+        return {ast::ZapTypeKind::BOOL, "", nullptr};
     }
 
     // For logical operations
     if (expr.op == ast::BinaryOp::AND || expr.op == ast::BinaryOp::OR) {
-        ast::ZapType bool_type = {ast::ZapTypeKind::BOOL, nullptr, nullptr};
+        ast::ZapType bool_type = {ast::ZapTypeKind::BOOL, "", nullptr};
 
         if (!types_compatible(bool_type, left_type) ||
             !types_compatible(bool_type, right_type)) {
@@ -387,7 +387,7 @@ ast::ZapType TypeChecker::infer_binary_expression_type(
     }
 
     report_error("Unknown binary operation");
-    return {ast::ZapTypeKind::VOID, nullptr, nullptr};
+    return {ast::ZapTypeKind::VOID, "", nullptr};
 }
 
 ast::ZapType TypeChecker::infer_unary_expression_type(
@@ -395,7 +395,7 @@ ast::ZapType TypeChecker::infer_unary_expression_type(
     ast::ZapType operand_type = infer_expression_type(*expr.unary);
 
     if (expr.op == ast::BinaryOp::NOT) {
-        ast::ZapType bool_type = {ast::ZapTypeKind::BOOL, nullptr, nullptr};
+        ast::ZapType bool_type = {ast::ZapTypeKind::BOOL, "", nullptr};
         if (!types_compatible(bool_type, operand_type)) {
             report_error("Logical NOT requires boolean type");
         }
@@ -408,7 +408,7 @@ ast::ZapType TypeChecker::infer_unary_expression_type(
     }
 
     report_error("Unknown unary operation");
-    return {ast::ZapTypeKind::VOID, nullptr, nullptr};
+    return {ast::ZapTypeKind::VOID, "", nullptr};
 }
 
 ast::ZapType TypeChecker::infer_call_expression_type(
@@ -416,34 +416,32 @@ ast::ZapType TypeChecker::infer_call_expression_type(
     // For now, handle built-in functions like print
     if (expr.function == "print") {
         // Print can accept any type, returns void
-        return {ast::ZapTypeKind::VOID, nullptr, nullptr};
+        return {ast::ZapTypeKind::VOID, "", nullptr};
     }
 
     // TODO: Look up user-defined functions
     report_error("Unknown function '" + expr.function + "'");
-    return {ast::ZapTypeKind::VOID, nullptr, nullptr};
+    return {ast::ZapTypeKind::VOID, "", nullptr};
 }
 
 ast::ZapType TypeChecker::infer_struct_access_type(
     const ast::ZapStructAccessExpression& expr) {
     // TODO: Implement struct field access type checking
     report_error("Struct access not yet implemented");
-    return {ast::ZapTypeKind::VOID, nullptr, nullptr};
+    return {ast::ZapTypeKind::VOID, "", nullptr};
 }
 
 ast::ZapType TypeChecker::infer_struct_init_type(
     const ast::ZapStructInitExpression& expr) {
     // Return the struct type
-    return {ast::ZapTypeKind::CUSTOM,
-            std::make_shared<ast::ZapIdentifier>(expr.type_name), nullptr};
+    return {ast::ZapTypeKind::CUSTOM, expr.type_name, nullptr};
 }
 
 bool TypeChecker::types_compatible(const ast::ZapType& expected,
                                    const ast::ZapType& actual) {
     if (expected.kind == actual.kind) {
         if (expected.kind == ast::ZapTypeKind::CUSTOM) {
-            return expected.custom_name && actual.custom_name &&
-                   *expected.custom_name == *actual.custom_name;
+            return expected.custom_name == actual.custom_name;
         }
         return true;
     }
@@ -487,7 +485,7 @@ bool TypeChecker::resolve_custom_type(const std::string& type_name,
     auto struct_it = global_symbols_->struct_map.find(type_name);
     if (struct_it != global_symbols_->struct_map.end()) {
         resolved_type = {ast::ZapTypeKind::CUSTOM,
-                         std::make_shared<ast::ZapIdentifier>(type_name),
+                         type_name,
                          nullptr};
         return true;
     }
@@ -496,7 +494,7 @@ bool TypeChecker::resolve_custom_type(const std::string& type_name,
     auto comp_it = global_symbols_->component_map.find(type_name);
     if (comp_it != global_symbols_->component_map.end()) {
         resolved_type = {ast::ZapTypeKind::CUSTOM,
-                         std::make_shared<ast::ZapIdentifier>(type_name),
+                         type_name,
                          nullptr};
         return true;
     }
@@ -531,7 +529,7 @@ std::string TypeChecker::type_to_string(const ast::ZapType& type) {
         case ast::ZapTypeKind::VOID:
             return "void";
         case ast::ZapTypeKind::CUSTOM:
-            return type.custom_name ? *type.custom_name : "unknown";
+            return type.custom_name;
         case ast::ZapTypeKind::ARRAY:
             return type.inner ? type_to_string(*type.inner) + "[]"
                               : "unknown[]";

@@ -155,13 +155,12 @@ void IRVisitor::generate(const ast::ZapExpression& expression,
                         {std::to_string(
                             std::get<ast::LiteralFloat>(literal.value))}});
                     break;
-                case 2:  // bool
-                    statements.push_back(
-                        IRStatement{var_name,
-                                    OpCode::MOV,
-                                    {std::get<ast::LiteralDouble>(literal.value)
-                                         ? "true"
-                                         : "false"}});
+                case 2:  // double
+                    statements.push_back(IRStatement{
+                        var_name,
+                        OpCode::MOV,
+                        {std::to_string(
+                            std::get<ast::LiteralDouble>(literal.value))}});
                     break;
                 case 3:  // string
                 {
@@ -171,6 +170,15 @@ void IRVisitor::generate(const ast::ZapExpression& expression,
                         "str_const_" + std::to_string(string_table[str_val]);
                     statements.push_back(
                         IRStatement{str_var, OpCode::MOV, {str_val}});
+                    break;
+                }
+                case 4: { // bool
+                    statements.push_back(
+                        IRStatement{var_name,
+                                    OpCode::MOV,
+                                    {std::get<ast::LiteralBool>(literal.value)
+                                         ? "true"
+                                         : "false"}});
                     break;
                 }
                 default:
@@ -200,7 +208,9 @@ void IRVisitor::generate(const ast::ZapExpression& expression,
                 std::cerr
                     << "Before size is the same as the actual size of the "
                        "statements vector in the left of binary expression\n";
-                statements.push_back(IRStatement{.result = get_temp(), .op = OpCode::MOV, .arg_list = {"0"}});
+                statements.push_back(IRStatement{.result   = get_temp(),
+                                                 .op       = OpCode::MOV,
+                                                 .arg_list = {"0"}});
             }
             std::string left_name = statements.back().result;
 
@@ -210,7 +220,9 @@ void IRVisitor::generate(const ast::ZapExpression& expression,
                 std::cerr
                     << "Before size is the same as the actual size of the "
                        "statements vector in the right of binary expression\n";
-                statements.push_back(IRStatement{.result = get_temp(), .op = OpCode::MOV, .arg_list = {"0"}});
+                statements.push_back(IRStatement{.result   = get_temp(),
+                                                 .op       = OpCode::MOV,
+                                                 .arg_list = {"0"}});
             }
             std::string right_name = statements.back().result;
 
@@ -288,13 +300,18 @@ void IRVisitor::generate(const ast::ZapExpression& expression,
         case ast::ZapExpressionKind::AOTBlock: {
             const ast::ZapAOTBlock& block =
                 std::get<ast::ZapAOTBlock>(expression.value);
-            std::vector<IRBlock> aot_blocks{{IRBlock{.name = get_temp(), .statements = {}}}};
+            std::vector<IRBlock> aot_blocks{
+                {IRBlock{.name = get_temp(), .statements = {}}}};
             for (const ast::ZapStatement& aot_statement : block.statements) {
                 generate(aot_statement, aot_blocks);
             }
             // Empty AOT Block
-            if (aot_blocks.size() == 1 && aot_blocks.front().statements.empty()) {
-                aot_blocks.front().statements.push_back(IRStatement{.result = get_temp(), .op = OpCode::MOV, .arg_list = {"0"}});
+            if (aot_blocks.size() == 1 &&
+                aot_blocks.front().statements.empty()) {
+                aot_blocks.front().statements.push_back(
+                    IRStatement{.result   = get_temp(),
+                                .op       = OpCode::MOV,
+                                .arg_list = {"0"}});
             }
             // TODO: Add VM so that these blocks can be evaluated at compile time
             break;
@@ -324,7 +341,7 @@ void IRVisitor::generate(const ast::ZapAssignStatement& assign_statement,
     generate(*assign_statement.target, statements);
     const std::string target_name = statements.back().result;
     statements.push_back(IRStatement{
-        .result = val_name, .op = OpCode::MOV, .arg_list = {target_name}});
+        .result = target_name, .op = OpCode::MOV, .arg_list = {val_name}});
 }
 
 void IRVisitor::generate(const ast::ZapIfStatement& if_stmt,
@@ -350,7 +367,8 @@ void IRVisitor::generate(const ast::ZapIfStatement& if_stmt,
         IRStatement{"", OpCode::BR, {cond_result, then_name, else_name}});
     blocks.push_back(std::move(cond_block));
 
-    std::vector<IRBlock> then_blocks{{IRBlock{.name = then_name, .statements = {}}}};
+    std::vector<IRBlock> then_blocks{
+        {IRBlock{.name = then_name, .statements = {}}}};
     for (const ast::ZapStatement& stmt : if_stmt.then_block) {
         generate(stmt, then_blocks);
     }
@@ -358,11 +376,12 @@ void IRVisitor::generate(const ast::ZapIfStatement& if_stmt,
         blocks.insert(blocks.end(), then_blocks.begin(), then_blocks.end());
     }
     then_blocks.back().statements.push_back(
-            IRStatement{"", OpCode::JMP, {merge_name}});
+        IRStatement{"", OpCode::JMP, {merge_name}});
 
     bool has_else = !if_stmt.else_block.empty();
     if (has_else) {
-        std::vector<IRBlock> else_blocks{{IRBlock{.name = else_name, .statements = {}}}};
+        std::vector<IRBlock> else_blocks{
+            {IRBlock{.name = else_name, .statements = {}}}};
         for (const ast::ZapStatement& stmt : if_stmt.else_block) {
             generate(stmt, else_blocks);
         }
@@ -370,7 +389,7 @@ void IRVisitor::generate(const ast::ZapIfStatement& if_stmt,
             blocks.insert(blocks.end(), else_blocks.begin(), else_blocks.end());
         }
         else_blocks.back().statements.push_back(
-                IRStatement{"", OpCode::JMP, {merge_name}});
+            IRStatement{"", OpCode::JMP, {merge_name}});
     }
 
     IRBlock merge_block;
