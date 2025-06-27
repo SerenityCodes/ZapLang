@@ -53,11 +53,6 @@ struct IRBlock {
     std::vector<IRStatement> statements;
 };
 
-struct IRLoop {
-    IRBlock condition;
-    std::vector<IRBlock> body;
-};
-
 struct IRFunction {
     std::string name;
     ast::ZapType return_type;
@@ -111,14 +106,14 @@ class IRVisitor {
                   std::vector<IRStatement>& statements);
     void generate(const ast::ZapIfStatement& if_statement,
                   std::vector<IRBlock>& blocks);
-    IRLoop generate(const ast::ZapForStatement& for_statement,
-                    std::vector<IRBlock>& blocks);
-    IRLoop generate(const ast::ZapWhileStatement& while_statement,
-                    std::vector<IRBlock>& blocks);
+    void generate(const ast::ZapForStatement& for_statement,
+                  std::vector<IRBlock>& blocks);
+    void generate(const ast::ZapWhileStatement& while_statement,
+                  std::vector<IRBlock>& blocks);
     void generate(const ast::ZapReturnStatement& ret_statement,
                   std::vector<IRStatement>& statements);
     void generate(const ast::ZapDeferStatement& defer_statement,
-                  std::vector<IRStatement>& statements);
+                  std::vector<IRBlock>& blocks);
 };
 
 class IRPrettyPrinter {
