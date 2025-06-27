@@ -15,6 +15,18 @@ std::any ASTVisitor::visitProgram(zapParser::ProgramContext* ctx) {
         ast::ZapDecl result =
             std::any_cast<ast::ZapDecl>(visitDeclaration(dec));
         program.declarations.push_back(result);
+
+        // Populate symbol table with structs and components
+        if (result.kind == ast::ZapDeclKind::Struct) {
+            ast::ZapStruct struct_decl = std::get<ast::ZapStruct>(result.value);
+            program.class_symbol_table.struct_map[struct_decl.name] =
+                struct_decl;
+        } else if (result.kind == ast::ZapDeclKind::Component) {
+            ast::ZapComponent component_decl =
+                std::get<ast::ZapComponent>(result.value);
+            program.class_symbol_table.component_map[component_decl.name] =
+                component_decl;
+        }
     }
     return program;
 }

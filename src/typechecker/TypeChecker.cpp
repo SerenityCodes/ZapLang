@@ -40,13 +40,34 @@ bool TypeChecker::check_function(const ast::ZapFunction& func) {
     // Create new scope for function parameters
     std::unordered_map<std::string, ast::ZapType> prev_scope = current_scope_;
 
-    // Add parameters to scope
+    bool success                                             = true;
+
+    // Validate and add parameters to scope
     for (const auto& param : func.params) {
+        // Check if parameter type is valid
+        ast::ZapType param_type = param.type;
+
+        // Handle reference types by checking the inner type
+        if (param_type.kind == ast::ZapTypeKind::REF && param_type.inner) {
+            param_type = *param_type.inner;
+        }
+
+        // Validate custom types
+        if (param_type.kind == ast::ZapTypeKind::CUSTOM) {
+            ast::ZapType resolved_type;
+            if (!resolve_custom_type(param_type.custom_name, resolved_type)) {
+                report_error("Unknown type '" + param_type.custom_name +
+                             "' in parameter '" + param.name +
+                             "' of function '" + func.name + "'");
+                success = false;
+                continue;
+            }
+        }
+
         current_scope_[param.name] = param.type;
     }
 
     // Check all statements in function body
-    bool success = true;
     for (const auto& stmt : func.body) {
         if (!check_statement(stmt)) {
             success = false;
@@ -126,6 +147,16 @@ bool TypeChecker::check_statement(const ast::ZapStatement& stmt) {
 }
 
 bool TypeChecker::check_let_statement(const ast::ZapLetStatement& stmt) {
+    // Validate that custom types exist before proceeding
+    if (stmt.type.kind == ast::ZapTypeKind::CUSTOM) {
+        ast::ZapType resolved_type;
+        if (!resolve_custom_type(stmt.type.custom_name, resolved_type)) {
+            report_error("Unknown type '" + stmt.type.custom_name +
+                         "' in variable declaration for '" + stmt.name + "'");
+            return false;
+        }
+    }
+
     // Infer the type of the initializer expression
     ast::ZapType inferred_type = infer_expression_type(*stmt.value);
 
@@ -435,8 +466,57 @@ ast::ZapType TypeChecker::infer_call_expression_type(
 
 ast::ZapType TypeChecker::infer_struct_access_type(
     const ast::ZapStructAccessExpression& expr) {
-    // TODO: Implement struct field access type checking
-    report_error("Struct access not yet implemented");
+    // First, get the type of the variable being accessed
+    auto var_it = current_scope_.find(expr.type);
+    if (var_it == current_scope_.end()) {
+        report_error("Undefined variable '" + expr.type + "' in struct access");
+        return {ast::ZapTypeKind::VOID, "", nullptr};
+    }
+
+    ast::ZapType var_type = var_it->second;
+
+    // Handle reference types by unwrapping them
+    if (var_type.kind == ast::ZapTypeKind::REF && var_type.inner) {
+        var_type = *var_type.inner;
+    }
+
+    // The variable must have a custom type (struct or component)
+    if (var_type.kind != ast::ZapTypeKind::CUSTOM) {
+        report_error("Variable '" + expr.type +
+                     "' is not a struct or component type");
+        return {ast::ZapTypeKind::VOID, "", nullptr};
+    }
+
+    // Look up the field in the struct/component definition
+    auto struct_it = global_symbols_->struct_map.find(var_type.custom_name);
+    if (struct_it != global_symbols_->struct_map.end()) {
+        const auto& struct_def = struct_it->second;
+        for (const auto& field : struct_def.fields) {
+            if (field.name == expr.field) {
+                return field.type;
+            }
+        }
+        report_error("Field '" + expr.field + "' not found in struct '" +
+                     var_type.custom_name + "'");
+        return {ast::ZapTypeKind::VOID, "", nullptr};
+    }
+
+    // Check if it's a component
+    auto comp_it = global_symbols_->component_map.find(var_type.custom_name);
+    if (comp_it != global_symbols_->component_map.end()) {
+        const auto& comp_def = comp_it->second;
+        for (const auto& field : comp_def.fields) {
+            if (field.name == expr.field) {
+                return field.type;
+            }
+        }
+        report_error("Field '" + expr.field + "' not found in component '" +
+                     var_type.custom_name + "'");
+        return {ast::ZapTypeKind::VOID, "", nullptr};
+    }
+
+    report_error("Unknown custom type '" + var_type.custom_name +
+                 "' in struct access");
     return {ast::ZapTypeKind::VOID, "", nullptr};
 }
 
