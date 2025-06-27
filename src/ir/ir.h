@@ -107,9 +107,9 @@ class IRVisitor {
     void generate(const ast::ZapIfStatement& if_statement,
                   std::vector<IRBlock>& blocks);
     void generate(const ast::ZapForStatement& for_statement,
-                    std::vector<IRBlock>& blocks);
+                  std::vector<IRBlock>& blocks);
     void generate(const ast::ZapWhileStatement& while_statement,
-                    std::vector<IRBlock>& blocks);
+                  std::vector<IRBlock>& blocks);
     void generate(const ast::ZapReturnStatement& ret_statement,
                   std::vector<IRStatement>& statements);
     void generate(const ast::ZapDeferStatement& defer_statement,

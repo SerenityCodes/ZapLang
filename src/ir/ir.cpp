@@ -82,8 +82,7 @@ void IRVisitor::generate(const ast::ZapStatement& statement,
                      blocks.back().statements);
             break;
         case ast::ZapStatementKind::Defer:
-            generate(std::get<ast::ZapDeferStatement>(statement.value),
-                     blocks);
+            generate(std::get<ast::ZapDeferStatement>(statement.value), blocks);
             break;
         case ast::ZapStatementKind::Block:
             const ast::ZapBlockStatement& block_stmt =
@@ -204,12 +203,16 @@ void IRVisitor::generate(const ast::ZapExpression& expression,
                 std::get<ast::ZapBinaryExpression>(expression.value);
             size_t before_size = statements.size();
             generate(*exp.left, statements);
-            ZAP_ASSERT(statements.size() != before_size, "before_size is the same as the size of the statements vector. No left side statements were created")
+            ZAP_ASSERT(statements.size() != before_size,
+                       "before_size is the same as the size of the statements "
+                       "vector. No left side statements were created")
             std::string left_name = statements.back().result;
 
             before_size           = statements.size();
             generate(*exp.right, statements);
-            ZAP_ASSERT(statements.size() != before_size, "before_size is the same as the size of the statements vector. No left side statements were created")
+            ZAP_ASSERT(statements.size() != before_size,
+                       "before_size is the same as the size of the statements "
+                       "vector. No left side statements were created")
             std::string right_name = statements.back().result;
 
             std::string var_name   = get_temp();
@@ -349,9 +352,11 @@ void IRVisitor::generate(const ast::ZapIfStatement& if_stmt,
         std::abort();
     }
     std::string cond_result = cond_block.statements.back().result;
-    bool has_else = !if_stmt.else_block.empty();
-    cond_block.statements.push_back(
-        IRStatement{"", OpCode::BR, {cond_result, then_name, has_else ? else_name : merge_name}});
+    bool has_else           = !if_stmt.else_block.empty();
+    cond_block.statements.push_back(IRStatement{
+        "",
+        OpCode::BR,
+        {cond_result, then_name, has_else ? else_name : merge_name}});
     blocks.push_back(std::move(cond_block));
 
     std::vector<IRBlock> then_blocks{
@@ -384,45 +389,55 @@ void IRVisitor::generate(const ast::ZapIfStatement& if_stmt,
 }
 
 void IRVisitor::generate(const ast::ZapForStatement& for_statement,
-                           std::vector<IRBlock>& blocks) {
-    std::string unique_loop_num = std::to_string(unique_num++);
-    std::string body_block_name = "for_body_" + unique_loop_num;
+                         std::vector<IRBlock>& blocks) {
+    std::string unique_loop_num      = std::to_string(unique_num++);
+    std::string body_block_name      = "for_body_" + unique_loop_num;
     std::string condition_block_name = "for_condition_" + unique_loop_num;
-    std::string continue_block = "for_continue_" + unique_loop_num;
+    std::string continue_block       = "for_continue_" + unique_loop_num;
     generate(for_statement.start, blocks.back().statements);
     const std::string& condition_var = blocks.back().statements.back().result;
 
     IRBlock condition_block{.name = condition_block_name, .statements = {}};
     generate(*for_statement.condition, condition_block.statements);
-    condition_block.statements.push_back(IRStatement{.result = "", .op = OpCode::BR, .arg_list = {condition_var, body_block_name, continue_block}});
+    condition_block.statements.push_back(IRStatement{
+        .result   = "",
+        .op       = OpCode::BR,
+        .arg_list = {condition_var, body_block_name, continue_block}});
 
-    std::vector<IRBlock> body{{IRBlock{.name = body_block_name, .statements = {}}}};
+    std::vector<IRBlock> body{
+        {IRBlock{.name = body_block_name, .statements = {}}}};
     for (const ast::ZapStatement& ast_statement : for_statement.body) {
         generate(ast_statement, body);
     }
-    body.back().statements.push_back(IRStatement{.result = "", .op = OpCode::JMP, .arg_list = {condition_block_name}});
-    
+    body.back().statements.push_back(IRStatement{
+        .result = "", .op = OpCode::JMP, .arg_list = {condition_block_name}});
+
     blocks.push_back(condition_block);
     blocks.insert(blocks.end(), body.begin(), body.end());
     blocks.push_back(IRBlock{.name = continue_block, .statements = {}});
 }
 
 void IRVisitor::generate(const ast::ZapWhileStatement& while_statement,
-                           std::vector<IRBlock>& blocks) {
-    std::string unique_num_str = std::to_string(unique_num++);
+                         std::vector<IRBlock>& blocks) {
+    std::string unique_num_str       = std::to_string(unique_num++);
     std::string condition_block_name = "while_condition_" + unique_num_str;
-    std::string body_block_name = "while_body_" + unique_num_str;
-    std::string continue_block_name = "while_continue_" + unique_num_str;
-    
+    std::string body_block_name      = "while_body_" + unique_num_str;
+    std::string continue_block_name  = "while_continue_" + unique_num_str;
+
     IRBlock condition_block{.name = condition_block_name, .statements = {}};
     generate(*while_statement.condition, condition_block.statements);
     std::string test_var = condition_block.statements.back().result;
-    condition_block.statements.push_back(IRStatement{.result = "", .op = OpCode::BR, .arg_list = {test_var, body_block_name, continue_block_name}});
-    std::vector<IRBlock> body{{IRBlock{.name = body_block_name, .statements = {}}}};
+    condition_block.statements.push_back(IRStatement{
+        .result   = "",
+        .op       = OpCode::BR,
+        .arg_list = {test_var, body_block_name, continue_block_name}});
+    std::vector<IRBlock> body{
+        {IRBlock{.name = body_block_name, .statements = {}}}};
     for (const ast::ZapStatement& statement : while_statement.body) {
         generate(statement, body);
     }
-    body.back().statements.push_back(IRStatement{.result = "", .op = OpCode::JMP, .arg_list = {condition_block_name}});
+    body.back().statements.push_back(IRStatement{
+        .result = "", .op = OpCode::JMP, .arg_list = {condition_block_name}});
     blocks.push_back(condition_block);
     blocks.insert(blocks.end(), body.begin(), body.end());
     blocks.push_back(IRBlock{.name = continue_block_name, .statements = {}});

@@ -25,7 +25,6 @@ std::string read_file(const char *file_name) {
 int main(int argc, const char *argv[]) {
     if (argc != 2) {
         ZAP_LOG_ERROR("Usage: zapc <file>");
-        std::cout << "";
         return 1;
     }
 
@@ -53,8 +52,6 @@ int main(int argc, const char *argv[]) {
         return 1;
     }
     ZAP_LOG_INFO("Type checking passed");
-
-    std::cout << "IR ----- \n";
 
     ir::IRVisitor ir_visitor;
     ir::IRProgram ir_program = ir_visitor.generate(program);
