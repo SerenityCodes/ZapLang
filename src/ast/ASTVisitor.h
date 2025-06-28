@@ -82,6 +82,8 @@ class ASTVisitor : public zapVisitor {
     virtual std::any visitExpression(
         zapParser::ExpressionContext *ctx) override;
 
+    virtual std::any visitLvalue(zapParser::LvalueContext* ctx) override;
+
     virtual std::any visitAssignment(
         zapParser::AssignmentContext *ctx) override;
 

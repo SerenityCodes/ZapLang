@@ -1,11 +1,14 @@
 func main() -> void {
     let a: u32 = 10;
     let b: u32 = 20;
+    let c: u32 = 0;
     if (a > b) {
-        print(a + b);
+        c = a + b;
+        print(c);
     } else {
-        print(a - b);
+        c = a - b;
+        print(c);
     }
-    let c: u32 = (a * a + b * b) / (a - b);
+    let d: u32 = (a * a + b * b) / (a - b);
     print(-c);
 }
