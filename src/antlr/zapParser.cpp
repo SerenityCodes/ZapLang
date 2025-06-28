@@ -2,7 +2,7 @@
 // Generated from zap.g4 by ANTLR 4.13.2
 
 
-#include "zapListener.h"
+#include "zapVisitor.h"
 
 #include "zapParser.h"
 
@@ -283,16 +283,12 @@ size_t zapParser::ProgramContext::getRuleIndex() const {
   return zapParser::RuleProgram;
 }
 
-void zapParser::ProgramContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterProgram(this);
-}
 
-void zapParser::ProgramContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitProgram(this);
+std::any zapParser::ProgramContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitProgram(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::ProgramContext* zapParser::program() {
@@ -360,16 +356,12 @@ size_t zapParser::DeclarationContext::getRuleIndex() const {
   return zapParser::RuleDeclaration;
 }
 
-void zapParser::DeclarationContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterDeclaration(this);
-}
 
-void zapParser::DeclarationContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitDeclaration(this);
+std::any zapParser::DeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitDeclaration(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::DeclarationContext* zapParser::declaration() {
@@ -478,16 +470,12 @@ size_t zapParser::StatementContext::getRuleIndex() const {
   return zapParser::RuleStatement;
 }
 
-void zapParser::StatementContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterStatement(this);
-}
 
-void zapParser::StatementContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitStatement(this);
+std::any zapParser::StatementContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitStatement(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::StatementContext* zapParser::statement() {
@@ -626,16 +614,12 @@ size_t zapParser::FunctionDeclContext::getRuleIndex() const {
   return zapParser::RuleFunctionDecl;
 }
 
-void zapParser::FunctionDeclContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterFunctionDecl(this);
-}
 
-void zapParser::FunctionDeclContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitFunctionDecl(this);
+std::any zapParser::FunctionDeclContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitFunctionDecl(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::FunctionDeclContext* zapParser::functionDecl() {
@@ -706,16 +690,12 @@ size_t zapParser::AttributeBlockContext::getRuleIndex() const {
   return zapParser::RuleAttributeBlock;
 }
 
-void zapParser::AttributeBlockContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterAttributeBlock(this);
-}
 
-void zapParser::AttributeBlockContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitAttributeBlock(this);
+std::any zapParser::AttributeBlockContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitAttributeBlock(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::AttributeBlockContext* zapParser::attributeBlock() {
@@ -769,16 +749,12 @@ size_t zapParser::AttributeListContext::getRuleIndex() const {
   return zapParser::RuleAttributeList;
 }
 
-void zapParser::AttributeListContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterAttributeList(this);
-}
 
-void zapParser::AttributeListContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitAttributeList(this);
+std::any zapParser::AttributeListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitAttributeList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::AttributeListContext* zapParser::attributeList() {
@@ -839,16 +815,12 @@ size_t zapParser::AttributeContext::getRuleIndex() const {
   return zapParser::RuleAttribute;
 }
 
-void zapParser::AttributeContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterAttribute(this);
-}
 
-void zapParser::AttributeContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitAttribute(this);
+std::any zapParser::AttributeContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitAttribute(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::AttributeContext* zapParser::attribute() {
@@ -916,16 +888,12 @@ size_t zapParser::AttributeArgsContext::getRuleIndex() const {
   return zapParser::RuleAttributeArgs;
 }
 
-void zapParser::AttributeArgsContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterAttributeArgs(this);
-}
 
-void zapParser::AttributeArgsContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitAttributeArgs(this);
+std::any zapParser::AttributeArgsContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitAttributeArgs(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::AttributeArgsContext* zapParser::attributeArgs() {
@@ -990,16 +958,12 @@ size_t zapParser::AttributeArgContext::getRuleIndex() const {
   return zapParser::RuleAttributeArg;
 }
 
-void zapParser::AttributeArgContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterAttributeArg(this);
-}
 
-void zapParser::AttributeArgContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitAttributeArg(this);
+std::any zapParser::AttributeArgContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitAttributeArg(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::AttributeArgContext* zapParser::attributeArg() {
@@ -1056,16 +1020,12 @@ size_t zapParser::ReturnTypeContext::getRuleIndex() const {
   return zapParser::RuleReturnType;
 }
 
-void zapParser::ReturnTypeContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterReturnType(this);
-}
 
-void zapParser::ReturnTypeContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitReturnType(this);
+std::any zapParser::ReturnTypeContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitReturnType(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::ReturnTypeContext* zapParser::returnType() {
@@ -1115,16 +1075,12 @@ size_t zapParser::ParameterListContext::getRuleIndex() const {
   return zapParser::RuleParameterList;
 }
 
-void zapParser::ParameterListContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterParameterList(this);
-}
 
-void zapParser::ParameterListContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitParameterList(this);
+std::any zapParser::ParameterListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitParameterList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::ParameterListContext* zapParser::parameterList() {
@@ -1189,16 +1145,12 @@ size_t zapParser::ParameterContext::getRuleIndex() const {
   return zapParser::RuleParameter;
 }
 
-void zapParser::ParameterContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterParameter(this);
-}
 
-void zapParser::ParameterContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitParameter(this);
+std::any zapParser::ParameterContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitParameter(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::ParameterContext* zapParser::parameter() {
@@ -1271,16 +1223,12 @@ size_t zapParser::TypeContext::getRuleIndex() const {
   return zapParser::RuleType;
 }
 
-void zapParser::TypeContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterType(this);
-}
 
-void zapParser::TypeContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitType(this);
+std::any zapParser::TypeContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitType(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::TypeContext* zapParser::type() {
@@ -1368,16 +1316,12 @@ size_t zapParser::StructDeclContext::getRuleIndex() const {
   return zapParser::RuleStructDecl;
 }
 
-void zapParser::StructDeclContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterStructDecl(this);
-}
 
-void zapParser::StructDeclContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitStructDecl(this);
+std::any zapParser::StructDeclContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitStructDecl(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::StructDeclContext* zapParser::structDecl() {
@@ -1442,16 +1386,12 @@ size_t zapParser::StructFieldContext::getRuleIndex() const {
   return zapParser::RuleStructField;
 }
 
-void zapParser::StructFieldContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterStructField(this);
-}
 
-void zapParser::StructFieldContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitStructField(this);
+std::any zapParser::StructFieldContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitStructField(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::StructFieldContext* zapParser::structField() {
@@ -1517,16 +1457,12 @@ size_t zapParser::ComponentDeclContext::getRuleIndex() const {
   return zapParser::RuleComponentDecl;
 }
 
-void zapParser::ComponentDeclContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterComponentDecl(this);
-}
 
-void zapParser::ComponentDeclContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitComponentDecl(this);
+std::any zapParser::ComponentDeclContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitComponentDecl(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::ComponentDeclContext* zapParser::componentDecl() {
@@ -1607,16 +1543,12 @@ size_t zapParser::ModuleDeclContext::getRuleIndex() const {
   return zapParser::RuleModuleDecl;
 }
 
-void zapParser::ModuleDeclContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterModuleDecl(this);
-}
 
-void zapParser::ModuleDeclContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitModuleDecl(this);
+std::any zapParser::ModuleDeclContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitModuleDecl(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::ModuleDeclContext* zapParser::moduleDecl() {
@@ -1682,16 +1614,12 @@ size_t zapParser::BlockContext::getRuleIndex() const {
   return zapParser::RuleBlock;
 }
 
-void zapParser::BlockContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterBlock(this);
-}
 
-void zapParser::BlockContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitBlock(this);
+std::any zapParser::BlockContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitBlock(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::BlockContext* zapParser::block() {
@@ -1765,16 +1693,12 @@ size_t zapParser::VariableDeclContext::getRuleIndex() const {
   return zapParser::RuleVariableDecl;
 }
 
-void zapParser::VariableDeclContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterVariableDecl(this);
-}
 
-void zapParser::VariableDeclContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitVariableDecl(this);
+std::any zapParser::VariableDeclContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitVariableDecl(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::VariableDeclContext* zapParser::variableDecl() {
@@ -1867,16 +1791,12 @@ size_t zapParser::IfStmtContext::getRuleIndex() const {
   return zapParser::RuleIfStmt;
 }
 
-void zapParser::IfStmtContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterIfStmt(this);
-}
 
-void zapParser::IfStmtContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitIfStmt(this);
+std::any zapParser::IfStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitIfStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::IfStmtContext* zapParser::ifStmt() {
@@ -1947,16 +1867,12 @@ size_t zapParser::WhileStmtContext::getRuleIndex() const {
   return zapParser::RuleWhileStmt;
 }
 
-void zapParser::WhileStmtContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterWhileStmt(this);
-}
 
-void zapParser::WhileStmtContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitWhileStmt(this);
+std::any zapParser::WhileStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitWhileStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::WhileStmtContext* zapParser::whileStmt() {
@@ -2024,16 +1940,12 @@ size_t zapParser::ForStmtContext::getRuleIndex() const {
   return zapParser::RuleForStmt;
 }
 
-void zapParser::ForStmtContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterForStmt(this);
-}
 
-void zapParser::ForStmtContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitForStmt(this);
+std::any zapParser::ForStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitForStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::ForStmtContext* zapParser::forStmt() {
@@ -2097,16 +2009,12 @@ size_t zapParser::ReturnStmtContext::getRuleIndex() const {
   return zapParser::RuleReturnStmt;
 }
 
-void zapParser::ReturnStmtContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterReturnStmt(this);
-}
 
-void zapParser::ReturnStmtContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitReturnStmt(this);
+std::any zapParser::ReturnStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitReturnStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::ReturnStmtContext* zapParser::returnStmt() {
@@ -2166,16 +2074,12 @@ size_t zapParser::YieldStmtContext::getRuleIndex() const {
   return zapParser::RuleYieldStmt;
 }
 
-void zapParser::YieldStmtContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterYieldStmt(this);
-}
 
-void zapParser::YieldStmtContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitYieldStmt(this);
+std::any zapParser::YieldStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitYieldStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::YieldStmtContext* zapParser::yieldStmt() {
@@ -2239,16 +2143,12 @@ size_t zapParser::DeferStmtContext::getRuleIndex() const {
   return zapParser::RuleDeferStmt;
 }
 
-void zapParser::DeferStmtContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterDeferStmt(this);
-}
 
-void zapParser::DeferStmtContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitDeferStmt(this);
+std::any zapParser::DeferStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitDeferStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::DeferStmtContext* zapParser::deferStmt() {
@@ -2317,16 +2217,12 @@ size_t zapParser::ExpressionStmtContext::getRuleIndex() const {
   return zapParser::RuleExpressionStmt;
 }
 
-void zapParser::ExpressionStmtContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterExpressionStmt(this);
-}
 
-void zapParser::ExpressionStmtContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitExpressionStmt(this);
+std::any zapParser::ExpressionStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitExpressionStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::ExpressionStmtContext* zapParser::expressionStmt() {
@@ -2372,16 +2268,12 @@ size_t zapParser::ExpressionContext::getRuleIndex() const {
   return zapParser::RuleExpression;
 }
 
-void zapParser::ExpressionContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterExpression(this);
-}
 
-void zapParser::ExpressionContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitExpression(this);
+std::any zapParser::ExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitExpression(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::ExpressionContext* zapParser::expression() {
@@ -2433,16 +2325,12 @@ size_t zapParser::LvalueContext::getRuleIndex() const {
   return zapParser::RuleLvalue;
 }
 
-void zapParser::LvalueContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterLvalue(this);
-}
 
-void zapParser::LvalueContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitLvalue(this);
+std::any zapParser::LvalueContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitLvalue(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 
@@ -2553,16 +2441,12 @@ size_t zapParser::AssignmentContext::getRuleIndex() const {
   return zapParser::RuleAssignment;
 }
 
-void zapParser::AssignmentContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterAssignment(this);
-}
 
-void zapParser::AssignmentContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitAssignment(this);
+std::any zapParser::AssignmentContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitAssignment(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::AssignmentContext* zapParser::assignment() {
@@ -2639,16 +2523,12 @@ size_t zapParser::LogicOrContext::getRuleIndex() const {
   return zapParser::RuleLogicOr;
 }
 
-void zapParser::LogicOrContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterLogicOr(this);
-}
 
-void zapParser::LogicOrContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitLogicOr(this);
+std::any zapParser::LogicOrContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitLogicOr(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::LogicOrContext* zapParser::logicOr() {
@@ -2717,16 +2597,12 @@ size_t zapParser::LogicAndContext::getRuleIndex() const {
   return zapParser::RuleLogicAnd;
 }
 
-void zapParser::LogicAndContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterLogicAnd(this);
-}
 
-void zapParser::LogicAndContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitLogicAnd(this);
+std::any zapParser::LogicAndContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitLogicAnd(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::LogicAndContext* zapParser::logicAnd() {
@@ -2803,16 +2679,12 @@ size_t zapParser::EqualityContext::getRuleIndex() const {
   return zapParser::RuleEquality;
 }
 
-void zapParser::EqualityContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterEquality(this);
-}
 
-void zapParser::EqualityContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitEquality(this);
+std::any zapParser::EqualityContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitEquality(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::EqualityContext* zapParser::equality() {
@@ -2918,16 +2790,12 @@ size_t zapParser::ComparisonContext::getRuleIndex() const {
   return zapParser::RuleComparison;
 }
 
-void zapParser::ComparisonContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterComparison(this);
-}
 
-void zapParser::ComparisonContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitComparison(this);
+std::any zapParser::ComparisonContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitComparison(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::ComparisonContext* zapParser::comparison() {
@@ -3015,16 +2883,12 @@ size_t zapParser::TermContext::getRuleIndex() const {
   return zapParser::RuleTerm;
 }
 
-void zapParser::TermContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterTerm(this);
-}
 
-void zapParser::TermContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitTerm(this);
+std::any zapParser::TermContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitTerm(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::TermContext* zapParser::term() {
@@ -3122,16 +2986,12 @@ size_t zapParser::FactorContext::getRuleIndex() const {
   return zapParser::RuleFactor;
 }
 
-void zapParser::FactorContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterFactor(this);
-}
 
-void zapParser::FactorContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitFactor(this);
+std::any zapParser::FactorContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitFactor(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::FactorContext* zapParser::factor() {
@@ -3211,16 +3071,12 @@ size_t zapParser::UnaryContext::getRuleIndex() const {
   return zapParser::RuleUnary;
 }
 
-void zapParser::UnaryContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterUnary(this);
-}
 
-void zapParser::UnaryContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitUnary(this);
+std::any zapParser::UnaryContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitUnary(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::UnaryContext* zapParser::unary() {
@@ -3316,16 +3172,12 @@ size_t zapParser::CallContext::getRuleIndex() const {
   return zapParser::RuleCall;
 }
 
-void zapParser::CallContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterCall(this);
-}
 
-void zapParser::CallContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitCall(this);
+std::any zapParser::CallContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitCall(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::CallContext* zapParser::call() {
@@ -3407,16 +3259,12 @@ size_t zapParser::ArgumentListContext::getRuleIndex() const {
   return zapParser::RuleArgumentList;
 }
 
-void zapParser::ArgumentListContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterArgumentList(this);
-}
 
-void zapParser::ArgumentListContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitArgumentList(this);
+std::any zapParser::ArgumentListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitArgumentList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::ArgumentListContext* zapParser::argumentList() {
@@ -3497,16 +3345,12 @@ size_t zapParser::PrimaryContext::getRuleIndex() const {
   return zapParser::RulePrimary;
 }
 
-void zapParser::PrimaryContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterPrimary(this);
-}
 
-void zapParser::PrimaryContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitPrimary(this);
+std::any zapParser::PrimaryContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitPrimary(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::PrimaryContext* zapParser::primary() {
@@ -3610,16 +3454,12 @@ size_t zapParser::AotBlockContext::getRuleIndex() const {
   return zapParser::RuleAotBlock;
 }
 
-void zapParser::AotBlockContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterAotBlock(this);
-}
 
-void zapParser::AotBlockContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zapListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitAotBlock(this);
+std::any zapParser::AotBlockContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zapVisitor*>(visitor))
+    return parserVisitor->visitAotBlock(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 zapParser::AotBlockContext* zapParser::aotBlock() {

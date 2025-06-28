@@ -12,7 +12,6 @@
 
 std::any ASTVisitor::visitProgram(zapParser::ProgramContext* ctx) {
     ast::ZapProgram program{.class_symbol_table = {}, .declarations = {}};
-    ZAP_LOG_INFO("Declarations size: {}", ctx->declaration().size())
     for (zapParser::DeclarationContext* dec : ctx->declaration()) {
         ast::ZapDecl result =
             std::any_cast<ast::ZapDecl>(visitDeclaration(dec));
@@ -639,24 +638,29 @@ std::any ASTVisitor::visitBlock(zapParser::BlockContext* ctx) {
 }
 
 std::any ASTVisitor::visitDeclaration(zapParser::DeclarationContext* ctx) {
+    ZAP_LOG_INFO("[ASTVisitor] Enter visitDeclaration");
     if (ctx->functionDecl()) {
         ast::ZapFunction func = std::any_cast<ast::ZapFunction>(
             visitFunctionDecl(ctx->functionDecl()));
+        ZAP_LOG_INFO("[ASTVisitor] Returning Function decl");
         return ast::ZapDecl{.kind = ast::ZapDeclKind::Function, .value = func};
     }
     if (ctx->structDecl()) {
         ast::ZapStruct zap_struct =
             std::any_cast<ast::ZapStruct>(visitStructDecl(ctx->structDecl()));
+        ZAP_LOG_INFO("[ASTVisitor] Returning Struct decl");
         return ast::ZapDecl{.kind  = ast::ZapDeclKind::Struct,
                             .value = zap_struct};
     }
     if (ctx->componentDecl()) {
         ast::ZapComponent component = std::any_cast<ast::ZapComponent>(
             visitComponentDecl(ctx->componentDecl()));
+        ZAP_LOG_INFO("[ASTVisitor] Returning Component decl");
         return ast::ZapDecl{.kind  = ast::ZapDeclKind::Component,
                             .value = component};
     }
     // Modules not implemented yet
+    ZAP_LOG_INFO("[ASTVisitor] Returning empty decl (not implemented)");
     return {};
 }
 
