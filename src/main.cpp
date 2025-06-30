@@ -27,8 +27,6 @@ int main(int argc, const char *argv[]) {
         ZAP_LOG_ERROR("Usage: zapc <file>");
         return 1;
     }
-
-    // Initialize logger
     Logger::Init();
 
     antlr4::ANTLRInputStream input(read_file(argv[1]));
@@ -38,13 +36,13 @@ int main(int argc, const char *argv[]) {
     zapParser parser(&tokens);
     zapParser::ProgramContext *program_ctx = parser.program();
     if (parser.getNumberOfSyntaxErrors() > 0) {
+        ZAP_LOG_ERROR("Parser failed. Exiting...");
         return 1;
     }
 
     ASTVisitor visitor;
     ast::ZapProgram program = std::any_cast<ast::ZapProgram>(visitor.visit(program_ctx));
 
-    // Type checking step
     typechecker::TypeChecker type_checker;
     if (!type_checker.check(program)) {
         ZAP_LOG_ERROR("Type checking failed");

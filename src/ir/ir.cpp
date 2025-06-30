@@ -300,6 +300,7 @@ void IRVisitor::generate(const ast::ZapExpression& expression,
             std::string arr_ptr = get_temp();
             statements.push_back(IRStatement{.result = arr_ptr, .op = OpCode::ADD, .arg_list = {array_access.array_name, index_val}});
             statements.push_back(IRStatement{.result = get_temp(), .op = OpCode::LOAD, .arg_list = {arr_ptr}});
+            break;
         }
     }
 }
@@ -475,7 +476,6 @@ static std::string indent_str(int indent) {
     return std::string(indent * 2, ' ');
 }
 
-// Helper function to get OpCode name as string
 static const char* opcode_to_string(OpCode op) {
     switch (op) {
         case OpCode::ADD:
