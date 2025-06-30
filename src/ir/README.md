@@ -1,6 +1,6 @@
 # Zap IR
 
-Zap IR is the intermediate stage between the AST and whatever the target architecture is. Currently, the plan is to support a compilation target to C++, LLVM, and a bytecode VM for quick development. The IR can be summarized as a typed assembly language, with similarities to LLVM IR to make it easier to compile to LLVM. It is a simplified SSA-based IR to make compiler optimizations easier and more effective.
+Zap IR is the intermediate stage between the AST and whatever the target architecture is. Currently, the plan is to support compliation to LLVM, which will take care of the intermediary steps. A custom backend avoiding LLVM and its slow times may be considered, but to get the project moving, LLVM is the compliation target. The IR can be summarized as a typed assembly language, with similarities to LLVM IR to make it easier to compile to LLVM. It is a simplified SSA-based IR to make compiler optimizations easier and more effective.
 
 ---
 ## Core Elements
@@ -37,7 +37,7 @@ Values represent operands for instructions. They include:
 ## Opcode Instructions
 
 ### Arithmetic
-Perform arithmetic operations on numeric types. If precision differs, highest precision is the resulting type (u32 + u16 = u32). The order of operations always goes from left to right. For example, %1 = div %0, %0 is %1 = %0 / %0.
+Perform arithmetic operations on numeric types. If precision differs during addition, highest precision is the resulting type (u32 + u16 = u32). The order of operations always goes from left to right. For example, %1 = div %0, %0 is %1 = %0 / %0.
 
 #### Add
 ```text
@@ -129,19 +129,37 @@ Perform logical operations.
 ### Memory
 Allocate and manage memory.
 
+#### Addr
+Gets the address of a variable
+```text
+%a = add 0 1
+%ptr = addr %a
+```
+
 #### Alloca
+
+Allocates bytes on the stack for a specific type
+
 ```text
 %ptr = alloca u32         ; Allocate stack space for u32
 ```
 
+#### 
+
 #### Load
+
+Load the value stored at the address
+
 ```text
-%value = load %ptr        ; Load value from stack
+%value = load %ptr
 ```
 
 #### Store
+
+Stores the word into the pointer's address
+
 ```text
-store %ptr, 42            ; Store 42 in memory
+store %ptr, 42
 ```
 
 ### Arena Memory Operations
@@ -151,8 +169,8 @@ store %ptr, 42            ; Store 42 in memory
 Allocate memory from an arena.
 
 ```text
-%ptr = arena_alloc %arena, u32       ; Push a u32 onto the arena
-%entity = arena_alloc %arena, Player ; Push a Player struct
+%ptr = arena_alloc %arena, u32
+%entity = arena_alloc %arena, Player
 ```
 
 #### ArenaClear
@@ -198,6 +216,9 @@ ret
 ### Function Calls
 
 #### Call
+
+Call can have as many arguments as needed. Variadic arguments are not supported at this time.
+
 ```text
 %result = call @func, %arg1 ; Call @func with %arg1
 ```
@@ -259,7 +280,7 @@ func update_health(entity: u32, health: ref Health) -> void {
 
 Generated Zap IR:
 ```text
-function @update_health(entity: u32, health: component_ref Health) -> void
+function update_health(entity: u32, health: component_ref Health) -> void
 attributes: [system("Update")]
 {
 entry:

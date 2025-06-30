@@ -1,8 +1,5 @@
 ﻿#pragma once
 
-#include <cstdint>
-#include <memory>
-
 #include "common.h"
 
 template <typename T>

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include "ast/ast.h"
 #include "common.h"
@@ -36,8 +37,9 @@ IRFunction IRVisitor::generate(const ast::ZapFunction& func) {
     function.args        = func.params;
     function.return_type = func.return_type;
     function.blocks      = {IRBlock{.name = "entry", .statements = {}}};
+    std::unordered_map<std::string, std::string> var_map;
     for (const ast::ZapStatement& statement : func.body) {
-        generate(statement, function.blocks);
+        generate(statement, function.blocks, var_map);
     }
     return function;
 }
@@ -53,18 +55,19 @@ IRStruct IRVisitor::generate(const ast::ZapStruct& strct) {
 }
 
 void IRVisitor::generate(const ast::ZapStatement& statement,
-                         std::vector<IRBlock>& blocks) {
+                         std::vector<IRBlock>& blocks,
+                         std::unordered_map<std::string, std::string>& var_map) {
     switch (statement.kind) {
         case ast::ZapStatementKind::If:
-            generate(std::get<ast::ZapIfStatement>(statement.value), blocks);
+            generate(std::get<ast::ZapIfStatement>(statement.value), blocks, var_map);
             break;
         case ast::ZapStatementKind::Let:
             generate(std::get<ast::ZapLetStatement>(statement.value),
-                     blocks.back().statements);
+                     blocks.back().statements, var_map);
             break;
         case ast::ZapStatementKind::Assign:
             generate(std::get<ast::ZapAssignStatement>(statement.value),
-                     blocks.back().statements);
+                     blocks.back().statements, var_map);
             break;
         case ast::ZapStatementKind::Expression:
             generate(
@@ -72,23 +75,23 @@ void IRVisitor::generate(const ast::ZapStatement& statement,
                 blocks.back().statements);
             break;
         case ast::ZapStatementKind::For:
-            generate(std::get<ast::ZapForStatement>(statement.value), blocks);
+            generate(std::get<ast::ZapForStatement>(statement.value), blocks, var_map);
             break;
         case ast::ZapStatementKind::While:
-            generate(std::get<ast::ZapWhileStatement>(statement.value), blocks);
+            generate(std::get<ast::ZapWhileStatement>(statement.value), blocks, var_map);
             break;
         case ast::ZapStatementKind::Return:
             generate(std::get<ast::ZapReturnStatement>(statement.value),
-                     blocks.back().statements);
+                     blocks.back().statements, var_map);
             break;
         case ast::ZapStatementKind::Defer:
-            generate(std::get<ast::ZapDeferStatement>(statement.value), blocks);
+            generate(std::get<ast::ZapDeferStatement>(statement.value), blocks, var_map);
             break;
         case ast::ZapStatementKind::Block:
             const ast::ZapBlockStatement& block_stmt =
                 std::get<ast::ZapBlockStatement>(statement.value);
             for (const ast::ZapStatement& stmt : block_stmt.statements) {
-                generate(stmt, blocks);
+                generate(stmt, blocks, var_map);
             }
             break;
     }
@@ -287,29 +290,24 @@ void IRVisitor::generate(const ast::ZapExpression& expression,
             break;
         }
         case ast::ZapExpressionKind::AOTBlock: {
-            const ast::ZapAOTBlock& block =
-                std::get<ast::ZapAOTBlock>(expression.value);
-            std::vector<IRBlock> aot_blocks{
-                {IRBlock{.name = get_temp(), .statements = {}}}};
-            for (const ast::ZapStatement& aot_statement : block.statements) {
-                generate(aot_statement, aot_blocks);
-            }
-            // Empty AOT Block
-            if (aot_blocks.size() == 1 &&
-                aot_blocks.front().statements.empty()) {
-                aot_blocks.front().statements.push_back(
-                    IRStatement{.result   = get_temp(),
-                                .op       = OpCode::MOV,
-                                .arg_list = {"0"}});
-            }
             // TODO: Add VM so that these blocks can be evaluated at compile time
+            break;
+        }
+        case ast::ZapExpressionKind::ArrayAccess: {
+            const ast::ZapArrayAccessExpression& array_access = std::get<ast::ZapArrayAccessExpression>(expression.value);
+            generate(*array_access.index, statements);
+            const std::string& index_val = statements.back().result;
+            std::string arr_ptr = get_temp();
+            statements.push_back(IRStatement{.result = arr_ptr, .op = OpCode::ADD, .arg_list = {array_access.array_name, index_val}});
+            statements.push_back(IRStatement{.result = get_temp(), .op = OpCode::LOAD, .arg_list = {arr_ptr}});
             break;
         }
     }
 }
 
 void IRVisitor::generate(const ast::ZapLetStatement& let_statement,
-                         std::vector<IRStatement>& statements) {
+                         std::vector<IRStatement>& statements,
+                         std::unordered_map<std::string, std::string>& var_map) {
     generate(*let_statement.value, statements);
     if (statements.empty()) {
         std::cerr << "[IR ERROR] Let statement value did not generate any IR "
@@ -317,14 +315,16 @@ void IRVisitor::generate(const ast::ZapLetStatement& let_statement,
         std::abort();
     }
     std::string value_result = statements.back().result;
-    IRStatement statement{.result   = let_statement.name,
+    var_map.try_emplace(let_statement.name, get_temp());
+    IRStatement statement{.result   = var_map[let_statement.name],
                           .op       = OpCode::MOV,
                           .arg_list = {value_result}};
     statements.push_back(statement);
 }
 
 void IRVisitor::generate(const ast::ZapAssignStatement& assign_statement,
-                         std::vector<IRStatement>& statements) {
+                         std::vector<IRStatement>& statements,
+                         std::unordered_map<std::string, std::string>& var_map) {
     generate(*assign_statement.value, statements);
     const std::string val_name = statements.back().result;
     generate(*assign_statement.target, statements);
@@ -334,12 +334,15 @@ void IRVisitor::generate(const ast::ZapAssignStatement& assign_statement,
 }
 
 void IRVisitor::generate(const ast::ZapIfStatement& if_stmt,
-                         std::vector<IRBlock>& blocks) {
+                         std::vector<IRBlock>& blocks,
+                         std::unordered_map<std::string, std::string>& var_map) {
     // Generate unique names for each block
     std::string id         = std::to_string(unique_num++);
     std::string then_name  = "then_block_" + id;
     std::string else_name  = "else_block_" + id;
     std::string merge_name = "merge_" + id;
+
+    std::vector<std::string> var_nodes;
 
     IRBlock cond_block;
     cond_block.name = "if_cond_" + id;
@@ -362,7 +365,7 @@ void IRVisitor::generate(const ast::ZapIfStatement& if_stmt,
     std::vector<IRBlock> then_blocks{
         {IRBlock{.name = then_name, .statements = {}}}};
     for (const ast::ZapStatement& stmt : if_stmt.then_block) {
-        generate(stmt, then_blocks);
+        generate(stmt, then_blocks, var_map);
     }
     then_blocks.back().statements.push_back(
         IRStatement{"", OpCode::JMP, {merge_name}});
@@ -374,7 +377,7 @@ void IRVisitor::generate(const ast::ZapIfStatement& if_stmt,
         std::vector<IRBlock> else_blocks{
             {IRBlock{.name = else_name, .statements = {}}}};
         for (const ast::ZapStatement& stmt : if_stmt.else_block) {
-            generate(stmt, else_blocks);
+            generate(stmt, else_blocks, var_map);
         }
         else_blocks.back().statements.push_back(
             IRStatement{"", OpCode::JMP, {merge_name}});
@@ -389,12 +392,13 @@ void IRVisitor::generate(const ast::ZapIfStatement& if_stmt,
 }
 
 void IRVisitor::generate(const ast::ZapForStatement& for_statement,
-                         std::vector<IRBlock>& blocks) {
+                         std::vector<IRBlock>& blocks,
+                         std::unordered_map<std::string, std::string>& var_map) {
     std::string unique_loop_num      = std::to_string(unique_num++);
     std::string body_block_name      = "for_body_" + unique_loop_num;
     std::string condition_block_name = "for_condition_" + unique_loop_num;
     std::string continue_block       = "for_continue_" + unique_loop_num;
-    generate(for_statement.start, blocks.back().statements);
+    generate(for_statement.start, blocks.back().statements, var_map);
     const std::string& condition_var = blocks.back().statements.back().result;
 
     IRBlock condition_block{.name = condition_block_name, .statements = {}};
@@ -407,7 +411,7 @@ void IRVisitor::generate(const ast::ZapForStatement& for_statement,
     std::vector<IRBlock> body{
         {IRBlock{.name = body_block_name, .statements = {}}}};
     for (const ast::ZapStatement& ast_statement : for_statement.body) {
-        generate(ast_statement, body);
+        generate(ast_statement, body, var_map);
     }
     body.back().statements.push_back(IRStatement{
         .result = "", .op = OpCode::JMP, .arg_list = {condition_block_name}});
@@ -418,7 +422,8 @@ void IRVisitor::generate(const ast::ZapForStatement& for_statement,
 }
 
 void IRVisitor::generate(const ast::ZapWhileStatement& while_statement,
-                         std::vector<IRBlock>& blocks) {
+                         std::vector<IRBlock>& blocks,
+                         std::unordered_map<std::string, std::string>& var_map) {
     std::string unique_num_str       = std::to_string(unique_num++);
     std::string condition_block_name = "while_condition_" + unique_num_str;
     std::string body_block_name      = "while_body_" + unique_num_str;
@@ -434,7 +439,7 @@ void IRVisitor::generate(const ast::ZapWhileStatement& while_statement,
     std::vector<IRBlock> body{
         {IRBlock{.name = body_block_name, .statements = {}}}};
     for (const ast::ZapStatement& statement : while_statement.body) {
-        generate(statement, body);
+        generate(statement, body, var_map);
     }
     body.back().statements.push_back(IRStatement{
         .result = "", .op = OpCode::JMP, .arg_list = {condition_block_name}});
@@ -444,7 +449,8 @@ void IRVisitor::generate(const ast::ZapWhileStatement& while_statement,
 }
 
 void IRVisitor::generate(const ast::ZapReturnStatement& ret_statement,
-                         std::vector<IRStatement>& statements) {
+                         std::vector<IRStatement>& statements,
+                         std::unordered_map<std::string, std::string>& var_map) {
     if (ret_statement.value) {
         generate(*ret_statement.value, statements);
         statements.push_back(
@@ -455,10 +461,11 @@ void IRVisitor::generate(const ast::ZapReturnStatement& ret_statement,
 }
 
 void IRVisitor::generate(const ast::ZapDeferStatement& defer_statement,
-                         std::vector<IRBlock>& blocks) {
+                         std::vector<IRBlock>& blocks,
+                         std::unordered_map<std::string, std::string>& var_map) {
     if (defer_statement.is_body) {
         for (const ast::ZapStatement& statement : defer_statement.body) {
-            generate(statement, blocks);
+            generate(statement, blocks, var_map);
         }
     } else {
         generate(*defer_statement.expr, blocks.back().statements);
@@ -469,7 +476,6 @@ static std::string indent_str(int indent) {
     return std::string(indent * 2, ' ');
 }
 
-// Helper function to get OpCode name as string
 static const char* opcode_to_string(OpCode op) {
     switch (op) {
         case OpCode::ADD:
@@ -564,8 +570,11 @@ void IRPrettyPrinter::print(const IRBlock& block, int indent) const {
 }
 
 void IRPrettyPrinter::print(const IRStatement& stmt, int indent) const {
-    std::cout << indent_str(indent) << stmt.result << " = "
-              << opcode_to_string(stmt.op) << ' ';
+    std::cout << indent_str(indent);
+    if (!stmt.result.empty()) {
+        std::cout << stmt.result << " = ";
+    }
+    std::cout << opcode_to_string(stmt.op) << ' ';
     if (!stmt.arg_list.empty()) {
         for (size_t i = 0; i < stmt.arg_list.size(); ++i) {
             std::cout << stmt.arg_list[i];

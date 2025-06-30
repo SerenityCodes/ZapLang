@@ -9,6 +9,7 @@
 namespace ir {
 
 enum OpCode {
+    ADDR,
     MOV,
     ADD,
     SUB,
@@ -93,7 +94,8 @@ class IRVisitor {
 
     // Generate IR blocks for a statement (output parameter)
     void generate(const ast::ZapStatement& statement,
-                  std::vector<IRBlock>& blocks);
+                  std::vector<IRBlock>& blocks,
+                  std::unordered_map<std::string, std::string>& var_map);
 
     // Generate IR statements for an expression (output parameter)
     void generate(const ast::ZapExpression& expression,
@@ -101,19 +103,26 @@ class IRVisitor {
 
     // Generate IR statements for let, assign, return, defer (output parameter)
     void generate(const ast::ZapLetStatement& let_statement,
-                  std::vector<IRStatement>& statements);
+                  std::vector<IRStatement>& statements,
+                  std::unordered_map<std::string, std::string>& var_map);
     void generate(const ast::ZapAssignStatement& assign_statement,
-                  std::vector<IRStatement>& statements);
+                  std::vector<IRStatement>& statements,
+                  std::unordered_map<std::string, std::string>& var_map);
     void generate(const ast::ZapIfStatement& if_statement,
-                  std::vector<IRBlock>& blocks);
+                  std::vector<IRBlock>& blocks,
+                  std::unordered_map<std::string, std::string>& var_map);
     void generate(const ast::ZapForStatement& for_statement,
-                  std::vector<IRBlock>& blocks);
+                  std::vector<IRBlock>& blocks,
+                  std::unordered_map<std::string, std::string>& var_map);
     void generate(const ast::ZapWhileStatement& while_statement,
-                  std::vector<IRBlock>& blocks);
+                  std::vector<IRBlock>& blocks,
+                  std::unordered_map<std::string, std::string>& var_map);
     void generate(const ast::ZapReturnStatement& ret_statement,
-                  std::vector<IRStatement>& statements);
+                  std::vector<IRStatement>& statements,
+                  std::unordered_map<std::string, std::string>& var_map);
     void generate(const ast::ZapDeferStatement& defer_statement,
-                  std::vector<IRBlock>& blocks);
+                  std::vector<IRBlock>& blocks,
+                  std::unordered_map<std::string, std::string>& var_map);
 };
 
 class IRPrettyPrinter {

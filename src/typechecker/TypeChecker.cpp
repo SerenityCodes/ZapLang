@@ -340,7 +340,7 @@ ast::ZapType TypeChecker::infer_expression_type(
                 std::get<ast::ZapStructInitExpression>(expr.value));
         default:
             report_error("Unknown expression kind");
-            return {ast::ZapTypeKind::VOID, nullptr, nullptr};
+            return {ast::ZapTypeKind::VOID, "", nullptr};
     }
 }
 

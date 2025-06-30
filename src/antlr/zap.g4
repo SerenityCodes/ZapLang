@@ -112,8 +112,15 @@ expression
     : assignment
     ;
 
+lvalue
+    : IDENTIFIER
+    | lvalue '.' IDENTIFIER
+    | lvalue '[' expression ']'
+    ;
+
 assignment
-    : logicOr ('=' expression)?
+    : lvalue '=' expression
+    | logicOr
     ;
 
 logicOr
@@ -157,6 +164,7 @@ primary
     | BOOL
     | STRING
     | IDENTIFIER
+    | lvalue
     | '(' expression ')'
     ;
 

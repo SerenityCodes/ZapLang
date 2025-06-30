@@ -3,12 +3,13 @@
 #include <any>
 #include "antlr/zapParser.h"
 #include "antlr/zapVisitor.h"
+#include "antlr/zapBaseVisitor.h"
 
 /**
  * This class provides an empty implementation of zapVisitor, which can be
  * extended to create a visitor which only needs to handle a subset of the available methods.
  */
-class ASTVisitor : public zapVisitor {
+class ASTVisitor : public zapBaseVisitor {
    public:
     virtual std::any visitProgram(zapParser::ProgramContext *ctx) override;
 
@@ -81,6 +82,8 @@ class ASTVisitor : public zapVisitor {
 
     virtual std::any visitExpression(
         zapParser::ExpressionContext *ctx) override;
+
+    virtual std::any visitLvalue(zapParser::LvalueContext* ctx) override;
 
     virtual std::any visitAssignment(
         zapParser::AssignmentContext *ctx) override;

@@ -8,6 +8,7 @@
 #include <vector>
 #include "antlr/zapParser.h"
 #include "ast/ast.h"
+#include "common.h"
 
 std::any ASTVisitor::visitProgram(zapParser::ProgramContext* ctx) {
     ast::ZapProgram program{.class_symbol_table = {}, .declarations = {}};
@@ -159,21 +160,43 @@ std::any ASTVisitor::visitExpression(zapParser::ExpressionContext* ctx) {
     return visitAssignment(ctx->assignment());
 }
 
-std::any ASTVisitor::visitAssignment(zapParser::AssignmentContext* ctx) {
-    std::shared_ptr<ast::ZapExpression> left =
-        std::any_cast<std::shared_ptr<ast::ZapExpression>>(
-            visitLogicOr(ctx->logicOr()));
-    // If there's an actual assignment going on
-    if (ctx->expression()) {
-        return std::make_shared<ast::ZapExpression>(ast::ZapExpression{
-            .kind  = ast::ZapExpressionKind::Binary,
-            .value = ast::ZapBinaryExpression{
-                .left  = left,
-                .right = std::any_cast<std::shared_ptr<ast::ZapExpression>>(
-                    visitExpression(ctx->expression())),
-                .op = ast::BinaryOp::ASSIGNMENT}});
+std::any ASTVisitor::visitLvalue(zapParser::LvalueContext* ctx) {
+    // Identifier
+    if (!ctx->lvalue() && ctx->IDENTIFIER()) {
+        return std::make_shared<ast::ZapExpression>(ast::ZapExpression{.kind = ast::ZapExpressionKind::Identifier, .value = ctx->IDENTIFIER()->getText()});
     }
-    return left;
+    
+    // Struct Access
+    if (ctx->lvalue() && ctx->IDENTIFIER()) {
+        return std::make_shared<ast::ZapExpression>(ast::ZapExpression{.kind = ast::ZapExpressionKind::StructAccess, .value = ast::ZapStructAccessExpression{
+                    .type = ctx->lvalue()->getText(), 
+                    .field = ctx->IDENTIFIER()->getText(),
+                }});
+    }
+    // Array Access
+    if (ctx->lvalue() && ctx->expression()) {
+        return std::make_shared<ast::ZapExpression>(ast::ZapExpression{.kind = ast::ZapExpressionKind::ArrayAccess, .value = ast::ZapArrayAccessExpression{
+                    .array_name = ctx->lvalue()->getText(),
+                    .index = std::any_cast<std::shared_ptr<ast::ZapExpression>>(visitExpression(ctx->expression()))
+                }});
+    }
+    return {};
+}
+
+std::any ASTVisitor::visitAssignment(zapParser::AssignmentContext* ctx) {
+    // If there's no assignment going on
+    if (ctx->logicOr()) {
+        return std::any_cast<std::shared_ptr<ast::ZapExpression>>(
+            visitLogicOr(ctx->logicOr()));
+    }
+    return std::make_shared<ast::ZapExpression>(ast::ZapExpression{
+                .kind = ast::ZapExpressionKind::Binary,
+                .value = ast::ZapBinaryExpression{
+                    .left = std::any_cast<std::shared_ptr<ast::ZapExpression>>(visitLvalue(ctx->lvalue())),
+                    .right = std::any_cast<std::shared_ptr<ast::ZapExpression>>(visitExpression(ctx->expression())),
+                    .op = ast::BinaryOp::ASSIGNMENT,
+                },
+            });
 }
 
 std::any ASTVisitor::visitLogicOr(zapParser::LogicOrContext* ctx) {
@@ -415,6 +438,9 @@ std::any ASTVisitor::visitPrimary(zapParser::PrimaryContext* ctx) {
     if (ctx->expression()) {
         return visitExpression(ctx->expression());
     }
+    if (ctx->lvalue()) {
+        return visitLvalue(ctx->lvalue());
+    }
     if (ctx->IDENTIFIER()) {
         return std::make_shared<ast::ZapExpression>(
             ast::ZapExpression{.kind  = ast::ZapExpressionKind::Identifier,
@@ -612,24 +638,29 @@ std::any ASTVisitor::visitBlock(zapParser::BlockContext* ctx) {
 }
 
 std::any ASTVisitor::visitDeclaration(zapParser::DeclarationContext* ctx) {
+    ZAP_LOG_INFO("[ASTVisitor] Enter visitDeclaration");
     if (ctx->functionDecl()) {
         ast::ZapFunction func = std::any_cast<ast::ZapFunction>(
             visitFunctionDecl(ctx->functionDecl()));
+        ZAP_LOG_INFO("[ASTVisitor] Returning Function decl");
         return ast::ZapDecl{.kind = ast::ZapDeclKind::Function, .value = func};
     }
     if (ctx->structDecl()) {
         ast::ZapStruct zap_struct =
             std::any_cast<ast::ZapStruct>(visitStructDecl(ctx->structDecl()));
+        ZAP_LOG_INFO("[ASTVisitor] Returning Struct decl");
         return ast::ZapDecl{.kind  = ast::ZapDeclKind::Struct,
                             .value = zap_struct};
     }
     if (ctx->componentDecl()) {
         ast::ZapComponent component = std::any_cast<ast::ZapComponent>(
             visitComponentDecl(ctx->componentDecl()));
+        ZAP_LOG_INFO("[ASTVisitor] Returning Component decl");
         return ast::ZapDecl{.kind  = ast::ZapDeclKind::Component,
                             .value = component};
     }
     // Modules not implemented yet
+    ZAP_LOG_INFO("[ASTVisitor] Returning empty decl (not implemented)");
     return {};
 }
 
