@@ -17,11 +17,7 @@ using LiteralDouble = double;
 using LiteralString = std::string;
 using LiteralBool   = bool;
 
-enum LValueKind {
-    ARRAY_ACCESS,
-    STRUCT_MEMBER,
-    VAR_NAME
-};
+enum LValueKind { ARRAY_ACCESS, STRUCT_MEMBER, VAR_NAME };
 
 enum ZapTypeKind {
     U8,
@@ -172,7 +168,8 @@ struct ZapExpression {
     ZapExpressionKind kind;
     std::variant<ZapLiteral, ZapIdentifier, ZapBinaryExpression,
                  ZapUnaryExpression, ZapCallExpression, ZapAOTBlock,
-                 ZapStructInitExpression, ZapStructAccessExpression, ZapArrayAccessExpression>
+                 ZapStructInitExpression, ZapStructAccessExpression,
+                 ZapArrayAccessExpression>
         value;
 };
 
