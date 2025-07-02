@@ -163,22 +163,28 @@ std::any ASTVisitor::visitExpression(zapParser::ExpressionContext* ctx) {
 std::any ASTVisitor::visitLvalue(zapParser::LvalueContext* ctx) {
     // Identifier
     if (!ctx->lvalue() && ctx->IDENTIFIER()) {
-        return std::make_shared<ast::ZapExpression>(ast::ZapExpression{.kind = ast::ZapExpressionKind::Identifier, .value = ctx->IDENTIFIER()->getText()});
+        return std::make_shared<ast::ZapExpression>(
+            ast::ZapExpression{.kind  = ast::ZapExpressionKind::Identifier,
+                               .value = ctx->IDENTIFIER()->getText()});
     }
-    
+
     // Struct Access
     if (ctx->lvalue() && ctx->IDENTIFIER()) {
-        return std::make_shared<ast::ZapExpression>(ast::ZapExpression{.kind = ast::ZapExpressionKind::StructAccess, .value = ast::ZapStructAccessExpression{
-                    .type = ctx->lvalue()->getText(), 
-                    .field = ctx->IDENTIFIER()->getText(),
-                }});
+        return std::make_shared<ast::ZapExpression>(
+            ast::ZapExpression{.kind  = ast::ZapExpressionKind::StructAccess,
+                               .value = ast::ZapStructAccessExpression{
+                                   .type  = ctx->lvalue()->getText(),
+                                   .field = ctx->IDENTIFIER()->getText(),
+                               }});
     }
     // Array Access
     if (ctx->lvalue() && ctx->expression()) {
-        return std::make_shared<ast::ZapExpression>(ast::ZapExpression{.kind = ast::ZapExpressionKind::ArrayAccess, .value = ast::ZapArrayAccessExpression{
-                    .array_name = ctx->lvalue()->getText(),
-                    .index = std::any_cast<std::shared_ptr<ast::ZapExpression>>(visitExpression(ctx->expression()))
-                }});
+        return std::make_shared<ast::ZapExpression>(ast::ZapExpression{
+            .kind  = ast::ZapExpressionKind::ArrayAccess,
+            .value = ast::ZapArrayAccessExpression{
+                .array_name = ctx->lvalue()->getText(),
+                .index = std::any_cast<std::shared_ptr<ast::ZapExpression>>(
+                    visitExpression(ctx->expression()))}});
     }
     return {};
 }
@@ -190,13 +196,16 @@ std::any ASTVisitor::visitAssignment(zapParser::AssignmentContext* ctx) {
             visitLogicOr(ctx->logicOr()));
     }
     return std::make_shared<ast::ZapExpression>(ast::ZapExpression{
-                .kind = ast::ZapExpressionKind::Binary,
-                .value = ast::ZapBinaryExpression{
-                    .left = std::any_cast<std::shared_ptr<ast::ZapExpression>>(visitLvalue(ctx->lvalue())),
-                    .right = std::any_cast<std::shared_ptr<ast::ZapExpression>>(visitExpression(ctx->expression())),
-                    .op = ast::BinaryOp::ASSIGNMENT,
-                },
-            });
+        .kind = ast::ZapExpressionKind::Binary,
+        .value =
+            ast::ZapBinaryExpression{
+                .left = std::any_cast<std::shared_ptr<ast::ZapExpression>>(
+                    visitLvalue(ctx->lvalue())),
+                .right = std::any_cast<std::shared_ptr<ast::ZapExpression>>(
+                    visitExpression(ctx->expression())),
+                .op = ast::BinaryOp::ASSIGNMENT,
+            },
+    });
 }
 
 std::any ASTVisitor::visitLogicOr(zapParser::LogicOrContext* ctx) {

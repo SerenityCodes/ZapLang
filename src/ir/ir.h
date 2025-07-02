@@ -100,6 +100,9 @@ class IRVisitor {
     // Generate IR statements for an expression (output parameter)
     void generate(const ast::ZapExpression& expression,
                   std::vector<IRStatement>& statements);
+    void generate(const ast::ZapExpression& expression,
+                  std::vector<IRStatement>& statements,
+                  std::unordered_map<std::string, std::string>& var_map);
 
     // Generate IR statements for let, assign, return, defer (output parameter)
     void generate(const ast::ZapLetStatement& let_statement,

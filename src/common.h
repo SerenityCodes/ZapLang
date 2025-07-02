@@ -21,7 +21,7 @@ using f64  = double;
         __debugbreak();                                      \
     }
 #else
-#define VULKAN_ASSERT(x, format_msg, ...)             \
+#define VULKAN_ASSERT(x, format_msg, ...)                    \
     if ((x) != VK_SUCCESS) {                                 \
         ZAP_LOG_ERROR(format_msg __VA_OPT__(, ) __VA_ARGS__) \
         assert(false);                                       \
