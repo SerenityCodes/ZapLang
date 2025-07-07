@@ -16,7 +16,6 @@ file(GLOB_RECURSE GENERATED_SOURCES
     src/ir/*.h
 )
 
-# Gather runtime sources (excluding Vulkan, Engine, and Systems due to external dependencies)
 file(GLOB RUNTIME_CORE_SOURCES
     src/memory/*.cpp
     src/memory/Allocators/*.cpp
