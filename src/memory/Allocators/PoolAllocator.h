@@ -1,32 +1,19 @@
 ﻿#pragma once
-#include <cstddef>
-#include "../Arena.h"
 
-namespace engine::allocators {
+#include "common.h"
 
-class PoolAllocator {
-public:
-    // Linked List structure
-    struct Chunk {
-        Chunk* next;
-    };
-private:
-    Arena* m_allocation_arena_;
-    Chunk* m_allocation_ptr_;
-    size_t m_chunks_per_block_;
-    size_t m_chunk_size_;
-    
-    Chunk* allocate_block() const;
-public:
-    PoolAllocator(Arena* allocation_arena, size_t chunks_per_block, size_t chunk_size);
-    PoolAllocator(const PoolAllocator&) = delete;
-    PoolAllocator(PoolAllocator&&) = delete;
-    PoolAllocator& operator=(const PoolAllocator&) = delete;
-    PoolAllocator& operator=(PoolAllocator&&) = delete;
-    ~PoolAllocator() = default;
+typedef struct chunk {
+    chunk* next;
+} Chunk;
 
-    void* allocate();
-    void deallocate(void* ptr);
-};
+typedef struct {
+    AllocFunc alloc_func;
+    Chunk* alloc_ptr;
+    u64 chunks_per_block;
+    u64 chunk_size;
+} PoolAllocator;
 
-}
+Chunk* chunk_allocate_block(PoolAllocator* allocator);
+
+void* pool_allocate(PoolAllocator* allocator);
+void pool_deallocate(PoolAllocator* allocator, void* ptr);

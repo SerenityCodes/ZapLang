@@ -1,40 +1,32 @@
 #pragma once
 
-#include "../Containers/ArrayRef.h"
-#include "../Containers/String.h"
-#include "../Memory/Arena.h"
-#include "../Vendor/flecs/flecs.h"
-#include "Vulkan/VulkanRenderer.h"
-#include "Vulkan/Wrappers/PipelineWrapper.h"
+#include <cstdio>
+#include "common.h"
+#include "containers/Array.h"
+#include "memory/Allocators/StackAllocator.h"
+#include "memory/Arena.h"
 
-namespace engine {
-class StealthEngine {
-    Arena m_temp_arena_;
-    Arena m_permanent_arena_;
-    vulkan::VulkanRenderer m_renderer_;
-    vulkan::PipelineWrapper m_pipeline_;
-    flecs::world m_world_;
+typedef struct {
+    Arena temp_arena;
+    StackAllocator calc_allocator;
+     
+} Engine;
 
-   public:
-    StealthEngine();
-    StealthEngine(const StealthEngine&)            = delete;
-    StealthEngine(StealthEngine&&)                 = delete;
-    StealthEngine& operator=(const StealthEngine&) = delete;
-    StealthEngine& operator=(StealthEngine&&)      = delete;
-    ~StealthEngine()                               = default;
+void run_engine(Engine* engine);
 
-    void run();
-    flecs::world& get_world();
-    vulkan::VulkanModel create_model(
-        const vulkan::VulkanModel::VertexIndexInfo& index_info);
-    vulkan::VulkanModel load_model(const String& file_name);
-    vulkan::VulkanModel load_model(const char* file_name);
-    float get_aspect_ratio() const;
+Array* read_byte_file(AllocFunc alloc_func, const char* file_name) {
+    FILE* file = fopen(file_name, "rb");
+    ZAP_ASSERT(file != NULL, "Failed to open file {}", file_name);
+    Array* new_arr = (Array*) alloc_func(NULL, sizeof(Array), sizeof(Array));  
+    ZAP_ASSERT(fseek(file, 0L, SEEK_END) == 0, "Error seeking the end of the file {}", file_name);
+    u64 file_size = ftell(file);         
+    ZAP_ASSERT(file_size != -1, "Error getting the file size from the end of file {}", file_name);
+    new_arr->data = alloc_func(NULL, file_size, 1);
+    ZAP_ASSERT(fseek(file, 0L, SEEK_SET) == 0, "Failed to return to the beginning of file {}", file_name);
+    u64 new_length = fread((u8*) new_arr->data, sizeof(u8), file_size, file);
+    ZAP_ASSERT(ferror(file) == 0, "Error reading file {}", file_name)
+    new_arr->size = new_length;
+    fclose(file);
+    return new_arr;
+}
 
-    static ArrayRef<byte> read_temporary_file(Arena& temp_arena,
-                                              const String& file_name);
-    static ArrayRef<byte> read_temporary_file(Arena& temp_arena,
-                                              const char* file_name);
-};
-
-}  // namespace engine

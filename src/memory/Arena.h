@@ -1,23 +1,13 @@
 ﻿#pragma once
-#include <cstddef>
+
 #include "Allocators/StackAllocator.h"
+#include "common.h"
 
-class Arena {
-    allocators::StackAllocator m_stack_;
+typedef struct {
+    StackAllocator allocator;  
+} Arena;
 
-   public:
-    Arena() = default;
-    Arena(size_t size);
-    ~Arena() = default;
+void* arena_push(Arena* arena, u64 size);
+void* arena_push(Arena* arena, u64 size, u64 alignment);
 
-    void* push(size_t size);
-    void* push(size_t size, size_t alignment);
-    void* push_zero(size_t size);
-    void* push_zero(size_t size, size_t alignment);
-
-    void pop(size_t size);
-
-    size_t get_position() const;
-    void set_position(uint64_t* position);
-    void clear();
-};
+void arena_clear(Arena* arena);
