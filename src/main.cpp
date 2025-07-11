@@ -41,7 +41,8 @@ int main(int argc, const char *argv[]) {
     }
 
     ASTVisitor visitor;
-    ast::ZapProgram program = std::any_cast<ast::ZapProgram>(visitor.visit(program_ctx));
+    ast::ZapProgram program =
+        std::any_cast<ast::ZapProgram>(visitor.visit(program_ctx));
 
     typechecker::TypeChecker type_checker;
     if (!type_checker.check(program)) {

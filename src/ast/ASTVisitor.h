@@ -1,9 +1,9 @@
 #pragma once
 
 #include <any>
+#include "antlr/zapBaseVisitor.h"
 #include "antlr/zapParser.h"
 #include "antlr/zapVisitor.h"
-#include "antlr/zapBaseVisitor.h"
 
 /**
  * This class provides an empty implementation of zapVisitor, which can be
@@ -83,7 +83,7 @@ class ASTVisitor : public zapBaseVisitor {
     virtual std::any visitExpression(
         zapParser::ExpressionContext *ctx) override;
 
-    virtual std::any visitLvalue(zapParser::LvalueContext* ctx) override;
+    virtual std::any visitLvalue(zapParser::LvalueContext *ctx) override;
 
     virtual std::any visitAssignment(
         zapParser::AssignmentContext *ctx) override;
