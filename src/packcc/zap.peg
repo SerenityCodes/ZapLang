@@ -1,0 +1,5 @@
+// Zap Grammer File
+
+program <- declaration* EOF
+
+declaration <- 

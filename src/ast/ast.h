@@ -5,17 +5,11 @@
 #include <variant>
 #include <vector>
 
-namespace ast {
-
 // === Identifiers and Types ===
 
-using ZapIdentifier = std::string;
+typedef char* ZapIdentifier;
 
-using LiteralInt    = int;
-using LiteralFloat  = float;
-using LiteralDouble = double;
-using LiteralString = std::string;
-using LiteralBool   = bool;
+typedef const char* LiteralString;
 
 enum LValueKind {
     ARRAY_ACCESS,
@@ -44,9 +38,10 @@ enum ZapTypeKind {
 struct ZapType {
     ZapTypeKind kind;
     ZapIdentifier custom_name;       // for CUSTOM
-    std::shared_ptr<ZapType> inner;  // for ARRAY or REF types
+    ZapType* inner;  // for ARRAY or REF types
+};
 
-    std::string to_string() const {
+const char* ast_type_to_string(ZapType* type) {
         switch (kind) {
             case U8:
                 return "u8";
@@ -73,7 +68,7 @@ struct ZapType {
             case VOID:
                 return "void";
             case CUSTOM:
-                return custom_name;
+                return type->custom_name;
                 break;
             case ARRAY:
                 if (inner)
@@ -88,7 +83,7 @@ struct ZapType {
         }
         return "invalid_type";
     }
-};
+}
 
 // === Expressionessions ===
 enum class ZapExpressionKind {
@@ -285,8 +280,6 @@ struct ZapDecl {
     std::variant<ZapFunction, ZapComponent, ZapStruct> value;
 };
 
-using SymbolTable = std::unordered_map<std::string, ast::ZapType>;
-
 struct ZapSymbolTable {
     std::unordered_map<std::string, ZapComponent> component_map;
     std::unordered_map<std::string, ZapStruct> struct_map;
@@ -296,5 +289,3 @@ struct ZapProgram {
     ZapSymbolTable class_symbol_table;
     std::vector<ZapDecl> declarations;
 };
-
-}  // namespace ast

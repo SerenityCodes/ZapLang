@@ -17,15 +17,13 @@ file(GLOB_RECURSE GENERATED_SOURCES
 )
 
 file(GLOB RUNTIME_CORE_SOURCES
-    src/memory/*.cpp
-    src/memory/Allocators/*.cpp
+    src/memory/*.c
     src/runtime/Logging/*.cpp
     src/containers/*.cpp
 )
 
 file(GLOB RUNTIME_CORE_HEADERS
     src/memory/*.h
-    src/memory/Allocators/*.h
     src/containers/*.h
 )
 

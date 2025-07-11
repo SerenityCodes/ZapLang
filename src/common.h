@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cstdint>
 #include "logger/Logger.h"
 
@@ -33,5 +34,3 @@ using f64  = double;
         ZAP_LOG_ERROR(format_msg __VA_OPT__(, ) __VA_ARGS__) \
         assert(false);                                       \
     }
-
-typedef void*(*AllocFunc)(void*, u64, u64);
