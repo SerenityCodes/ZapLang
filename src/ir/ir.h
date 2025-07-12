@@ -40,7 +40,8 @@ enum OpCode {
     ENTITY_GET,
     STRUCT_GET,
     STRUCT_SET,
-    CAST
+    CAST,
+    PHI
 };
 
 struct IRStatement {
@@ -78,6 +79,13 @@ class IRVisitor {
     std::unordered_map<std::string, u32> string_table;
 
     std::string get_temp() { return "tmp_" + std::to_string(unique_num++); }
+
+    // Track variable definitions for PHI node generation
+    struct BlockVariableState {
+        std::unordered_map<std::string, std::string> var_map;
+        std::string block_name;
+        std::vector<std::string> predecessors;
+    };
 
    public:
     // Generate the full IR program from an AST program
@@ -126,6 +134,14 @@ class IRVisitor {
     void generate(const ast::ZapDeferStatement& defer_statement,
                   std::vector<IRBlock>& blocks,
                   std::unordered_map<std::string, std::string>& var_map);
+
+    // Helper method for generating phi nodes
+    void generate_phi_nodes(
+        IRBlock& merge_block,
+        const std::vector<std::pair<
+            std::string, std::unordered_map<std::string, std::string>>>&
+            incoming_blocks,
+        std::unordered_map<std::string, std::string>& merge_var_map);
 };
 
 class IRPrettyPrinter {
