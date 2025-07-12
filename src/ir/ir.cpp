@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include "ast/ast.h"
 #include "common.h"
@@ -572,7 +573,8 @@ void IRVisitor::generate(
     std::string else_name  = "else_block_" + id;
     std::string merge_name = "merge_" + id;
 
-    std::vector<std::string> var_nodes;
+    // Save the current variable state (before if-statement)
+    std::unordered_map<std::string, std::string> entry_var_map = var_map;
 
     IRBlock cond_block;
     cond_block.name = "if_cond_" + id;
@@ -592,32 +594,63 @@ void IRVisitor::generate(
         {cond_result, then_name, has_else ? else_name : merge_name}});
     blocks.push_back(std::move(cond_block));
 
+    // Generate then block with its own variable map
+    std::unordered_map<std::string, std::string> then_var_map = var_map;
     std::vector<IRBlock> then_blocks{
         {IRBlock{.name = then_name, .statements = {}}}};
     for (const ast::ZapStatement& stmt : if_stmt.then_block) {
-        generate(stmt, then_blocks, var_map);
+        generate(stmt, then_blocks, then_var_map);
     }
     then_blocks.back().statements.push_back(
         IRStatement{"", OpCode::JMP, {merge_name}});
-    if (!then_blocks.front().statements.empty()) {
+
+    // Record the actual last block name for then path
+    std::string then_exit_block = then_blocks.back().name;
+
+    if (!then_blocks.front().statements.empty() ||
+        then_blocks.front().statements.empty()) {
         blocks.insert(blocks.end(), then_blocks.begin(), then_blocks.end());
     }
 
+    // Generate else block with its own variable map
+    std::unordered_map<std::string, std::string> else_var_map = var_map;
+    std::string else_exit_block;
     if (has_else) {
         std::vector<IRBlock> else_blocks{
             {IRBlock{.name = else_name, .statements = {}}}};
         for (const ast::ZapStatement& stmt : if_stmt.else_block) {
-            generate(stmt, else_blocks, var_map);
+            generate(stmt, else_blocks, else_var_map);
         }
         else_blocks.back().statements.push_back(
             IRStatement{"", OpCode::JMP, {merge_name}});
-        if (!else_blocks.front().statements.empty()) {
+
+        // Record the actual last block name for else path
+        else_exit_block = else_blocks.back().name;
+
+        if (!else_blocks.front().statements.empty() ||
+            else_blocks.front().statements.empty()) {
             blocks.insert(blocks.end(), else_blocks.begin(), else_blocks.end());
         }
+    } else {
+        // If no else block, the else path has the same variable state as entry
+        else_var_map    = var_map;
+        else_exit_block = "if_cond_" + id;
     }
 
+    // Create merge block and generate phi nodes
     IRBlock merge_block;
     merge_block.name = merge_name;
+
+    // Prepare incoming blocks for phi node generation
+    std::vector<
+        std::pair<std::string, std::unordered_map<std::string, std::string>>>
+        incoming_blocks;
+    incoming_blocks.emplace_back(then_exit_block, then_var_map);
+    incoming_blocks.emplace_back(else_exit_block, else_var_map);
+
+    // Generate phi nodes and update var_map for merge block
+    generate_phi_nodes(merge_block, incoming_blocks, var_map);
+
     blocks.push_back(std::move(merge_block));
 }
 
@@ -693,6 +726,64 @@ void IRVisitor::generate(
     }
 }
 
+void IRVisitor::generate_phi_nodes(
+    IRBlock& merge_block,
+    const std::vector<
+        std::pair<std::string, std::unordered_map<std::string, std::string>>>&
+        incoming_blocks,
+    std::unordered_map<std::string, std::string>& merge_var_map) {
+    // Find all variables that need phi nodes
+    std::unordered_set<std::string> all_vars;
+    for (const auto& [block_name, var_map] : incoming_blocks) {
+        for (const auto& [var_name, temp_name] : var_map) {
+            all_vars.insert(var_name);
+        }
+    }
+
+    // For each variable, check if it has different values in different blocks
+    for (const std::string& var_name : all_vars) {
+        std::vector<std::string> phi_values;
+        std::vector<std::string> phi_blocks;
+        bool needs_phi = false;
+        std::string first_temp;
+
+        for (const auto& [block_name, var_map] : incoming_blocks) {
+            auto it = var_map.find(var_name);
+            if (it != var_map.end()) {
+                if (first_temp.empty()) {
+                    first_temp = it->second;
+                } else if (first_temp != it->second) {
+                    needs_phi = true;
+                }
+                phi_values.push_back(it->second);
+                phi_blocks.push_back(block_name);
+            }
+        }
+
+        if (needs_phi && phi_values.size() > 1) {
+            // Generate a phi node
+            std::string phi_result = get_temp();
+            std::vector<std::string> phi_args;
+
+            // Phi arguments are pairs: [value, block, value, block, ...]
+            for (size_t i = 0; i < phi_values.size(); ++i) {
+                phi_args.push_back(phi_values[i]);
+                phi_args.push_back(phi_blocks[i]);
+            }
+
+            IRStatement phi_stmt{
+                .result = phi_result, .op = OpCode::PHI, .arg_list = phi_args};
+
+            merge_block.statements.insert(merge_block.statements.begin(),
+                                          phi_stmt);
+            merge_var_map[var_name] = phi_result;
+        } else if (!phi_values.empty()) {
+            // Variable has the same value in all blocks, no phi needed
+            merge_var_map[var_name] = phi_values[0];
+        }
+    }
+}
+
 void IRVisitor::generate(
     const ast::ZapDeferStatement& defer_statement, std::vector<IRBlock>& blocks,
     std::unordered_map<std::string, std::string>& var_map) {
@@ -755,6 +846,8 @@ static const char* opcode_to_string(OpCode op) {
             return "RET";
         case OpCode::CAST:
             return "CAST";
+        case OpCode::PHI:
+            return "PHI";
         default:
             return "UNKNOWN";
     }
